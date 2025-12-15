@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "dist/web-is-api-cnd/browser",
+    "public": "dist/WebIsAPI-CND/browser",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
       {

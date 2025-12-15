@@ -8,5 +8,5 @@ import { RouterOutlet } from '@angular/router';
   styleUrl: './app.component.scss',
 })
 export class App {
-  protected readonly title = signal('WebIsAPI-CND');
+  protected readonly title = signal('Claire');
 }
