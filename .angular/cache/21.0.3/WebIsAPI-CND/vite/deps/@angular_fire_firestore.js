@@ -13,7 +13,7 @@ import {
   isCloudWorkstation as isCloudWorkstation2,
   isSafari as isSafari2,
   registerVersion as registerVersion2
-} from "./chunk-36PDBGXE.js";
+} from "./chunk-GTVDQEIB.js";
 import {
   Component,
   FirebaseApp,
@@ -45,9 +45,9 @@ import {
   ɵgetAllInstancesOf,
   ɵgetDefaultInstanceOf,
   ɵzoneWrap
-} from "./chunk-JBPDZP7J.js";
-import "./chunk-DIF2K2DU.js";
-import "./chunk-FDXKQVVB.js";
+} from "./chunk-L667CC4T.js";
+import "./chunk-UX7QT7KC.js";
+import "./chunk-YCO32A2V.js";
 import {
   InjectionToken,
   Injector,
@@ -72,7 +72,7 @@ import {
   timer,
   ɵɵdefineInjector,
   ɵɵdefineNgModule
-} from "./chunk-77NQGTP3.js";
+} from "./chunk-MKSJXIGO.js";
 
 // node_modules/@firebase/webchannel-wrapper/dist/bloom-blob/esm/bloom_blob_es2018.js
 var commonjsGlobal = typeof globalThis !== "undefined" ? globalThis : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : {};
