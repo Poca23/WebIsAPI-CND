@@ -75,6 +75,7 @@ npm test # Lancer les tests unitaires
 npm run lint # Linter le code
 🌐 Déploiement
 
+```
 # Build production
 
 ng build --configuration production
@@ -82,10 +83,7 @@ ng build --configuration production
 # Déployer sur Firebase Hosting
 
 firebase deploy
-📝 Documentation
-
-Feuille de route
-Guide de contribution
+```
 
 👥 Auteurs
 
