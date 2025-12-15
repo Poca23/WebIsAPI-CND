@@ -93,5 +93,5 @@ Naudin Claire - CND - Web Is Yours
 📄 Licence
 MIT License
 
-Date de création : Décembre 2024
+Date de création : Décembre 2025
 Version : 0.1.0
