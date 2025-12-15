@@ -1,59 +1,97 @@
-# WebIsAPICND
+# 📚 WebIsAPI-CND - Bibliothèque d'APIs
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.3.
+## 🎯 Description
 
-## Development server
+Application web Angular de bibliothèque interactive d'APIs avec interface publique et administration sécurisée.
 
-To start a local development server, run:
+## 🛠️ Stack Technique
+
+- **Frontend** : Angular 21 + TypeScript
+- **CSS** : TailwindCSS v3
+- **Backend** : Firebase (Firestore + Auth + Hosting)
+- **i18n** : @ngneat/transloco
+- **Éditeur** : ngx-quill
+
+## 🚀 Installation
+
+### Prérequis
+
+- Node.js >= 18
+- npm >= 9
+- Angular CLI 21
+- Firebase CLI
+
+### Étapes
 
 ```bash
+# 1. Cloner le repository
+git clone https://github.com/VOTRE_USERNAME/WebIsAPI-CND.git
+cd WebIsAPI-CND
+
+# 2. Installer les dépendances
+npm install
+
+# 3. Configurer Firebase
+# Créer src/environments/environment.ts à partir de environment.template.ts
+# Remplir les clés API Firebase (voir Firebase Console)
+
+# 4. Lancer le serveur de développement
 ng serve
+# Application disponible sur http://localhost:4200
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+📁 Structure du Projet
+src/app/
+├── core/ # Services singleton (API, Auth, Theme, etc.)
+├── shared/ # Composants réutilisables (Modal, Tabs, etc.)
+├── features/ # Modules métier
+│ ├── api-list/ # Liste des APIs avec filtres
+│ ├── api-detail/ # Détail d'une API
+│ └── admin/ # Interface d'administration
+└── models/ # Interfaces TypeScript
 
-## Code scaffolding
+📱 Fonctionnalités
+Publiques
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+✅ Liste des APIs avec filtres (catégorie, favoris)
+✅ Tri (date, A-Z, Z-A)
+✅ Page détail avec 3 onglets tutoriels (Windows/Mac/Linux)
+✅ Favoris et historique (3 dernières APIs)
+✅ Statistiques (APIs les plus populaires)
+✅ i18n (Français/Anglais)
+✅ 3 thèmes (Dark/Light/Daltonien)
 
-```bash
-ng generate component component-name
-```
+Administration (protégée)
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+✅ Authentification Firebase
+✅ CRUD complet sur les APIs
+✅ Éditeur WYSIWYG pour tutoriels
+✅ Validation des formulaires
 
-```bash
-ng generate --help
-```
+🔧 Scripts npm
+npm start # Lancer le serveur de dev
+npm run build # Build de production
+npm test # Lancer les tests unitaires
+npm run lint # Linter le code
+🌐 Déploiement
 
-## Building
+# Build production
 
-To build the project run:
+ng build --configuration production
 
-```bash
-ng build
-```
+# Déployer sur Firebase Hosting
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+firebase deploy
+📝 Documentation
 
-## Running unit tests
+Feuille de route
+Guide de contribution
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+👥 Auteurs
 
-```bash
-ng test
-```
+Naudin Claire - CND - Web Is Yours
+📄 Licence
+MIT License
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Date de création : Décembre 2024
+Version : 0.1.0

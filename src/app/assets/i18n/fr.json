@@ -1,0 +1,12 @@
+{
+  "nav": {
+    "home": "Accueil",
+    "apis": "APIs",
+    "admin": "Admin"
+  },
+  "common": {
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès"
+  }
+}

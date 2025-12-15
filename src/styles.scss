@@ -1,3 +1,32 @@
+/* Who: Développeur frontend
+   What: Import des directives Tailwind
+   When: Au démarrage de l'application
+   Where: Fichier de styles global
+   Why: Activer les classes utilitaires Tailwind
+   Which: Base, Components, Utilities
+   How: Directives @tailwind */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Who: Designer UI/UX
+   What: Styles globaux de base
+   When: Appliqués à toute l'app
+   Where: Body et éléments HTML
+   Why: Reset et cohérence visuelle
+   Which: Font, couleurs, transitions
+   How: Sélecteurs CSS globaux */
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}

@@ -1,4 +1,13 @@
 // src/environments/environment.ts
+
+// Who: Développeur backend
+// What: Configuration Firebase pour développement
+// When: Utilisée en mode dev (ng serve)
+// Where: src/environments/environment.ts
+// Why: Variables Firebase pour connexion BaaS
+// Which: Clés API Firebase du projet
+// How: Export d'objet avec config Firebase Console
+
 export const environment = {
   production: false,
   firebase: {
