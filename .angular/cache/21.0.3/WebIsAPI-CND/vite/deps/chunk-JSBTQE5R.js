@@ -866,10 +866,151 @@ var initializeAppCheck2 = ɵzoneWrap(initializeAppCheck, true);
 var onTokenChanged2 = ɵzoneWrap(onTokenChanged, true);
 var setTokenAutoRefreshEnabled2 = ɵzoneWrap(setTokenAutoRefreshEnabled, true);
 
-// node_modules/@firebase/util/dist/postinstall.mjs
-var getDefaultsFromPostinstall = () => void 0;
+// node_modules/@firebase/component/node_modules/@firebase/util/dist/index.esm2017.js
+var MAX_VALUE_MILLIS = 4 * 60 * 60 * 1e3;
 
-// node_modules/@firebase/util/dist/index.esm2017.js
+// node_modules/@firebase/component/dist/esm/index.esm2017.js
+var Component2 = class {
+  /**
+   *
+   * @param name The public service name, e.g. app, auth, firestore, database
+   * @param instanceFactory Service factory responsible for creating the public interface
+   * @param type whether the service provided by the component is public or private
+   */
+  constructor(name5, instanceFactory, type) {
+    this.name = name5;
+    this.instanceFactory = instanceFactory;
+    this.type = type;
+    this.multipleInstances = false;
+    this.serviceProps = {};
+    this.instantiationMode = "LAZY";
+    this.onInstanceCreated = null;
+  }
+  setInstantiationMode(mode) {
+    this.instantiationMode = mode;
+    return this;
+  }
+  setMultipleInstances(multipleInstances) {
+    this.multipleInstances = multipleInstances;
+    return this;
+  }
+  setServiceProps(props) {
+    this.serviceProps = props;
+    return this;
+  }
+  setInstanceCreatedCallback(callback) {
+    this.onInstanceCreated = callback;
+    return this;
+  }
+};
+
+// node_modules/@firebase/logger/dist/esm/index.esm2017.js
+var instances = [];
+var LogLevel2;
+(function(LogLevel3) {
+  LogLevel3[LogLevel3["DEBUG"] = 0] = "DEBUG";
+  LogLevel3[LogLevel3["VERBOSE"] = 1] = "VERBOSE";
+  LogLevel3[LogLevel3["INFO"] = 2] = "INFO";
+  LogLevel3[LogLevel3["WARN"] = 3] = "WARN";
+  LogLevel3[LogLevel3["ERROR"] = 4] = "ERROR";
+  LogLevel3[LogLevel3["SILENT"] = 5] = "SILENT";
+})(LogLevel2 || (LogLevel2 = {}));
+var levelStringToEnum = {
+  "debug": LogLevel2.DEBUG,
+  "verbose": LogLevel2.VERBOSE,
+  "info": LogLevel2.INFO,
+  "warn": LogLevel2.WARN,
+  "error": LogLevel2.ERROR,
+  "silent": LogLevel2.SILENT
+};
+var defaultLogLevel = LogLevel2.INFO;
+var ConsoleMethod = {
+  [LogLevel2.DEBUG]: "log",
+  [LogLevel2.VERBOSE]: "log",
+  [LogLevel2.INFO]: "info",
+  [LogLevel2.WARN]: "warn",
+  [LogLevel2.ERROR]: "error"
+};
+var defaultLogHandler = (instance, logType, ...args) => {
+  if (logType < instance.logLevel) {
+    return;
+  }
+  const now = (/* @__PURE__ */ new Date()).toISOString();
+  const method = ConsoleMethod[logType];
+  if (method) {
+    console[method](`[${now}]  ${instance.name}:`, ...args);
+  } else {
+    throw new Error(`Attempted to log a message with an invalid logType (value: ${logType})`);
+  }
+};
+var Logger2 = class {
+  /**
+   * Gives you an instance of a Logger to capture messages according to
+   * Firebase's logging scheme.
+   *
+   * @param name The name that the logs will be associated with
+   */
+  constructor(name5) {
+    this.name = name5;
+    this._logLevel = defaultLogLevel;
+    this._logHandler = defaultLogHandler;
+    this._userLogHandler = null;
+    instances.push(this);
+  }
+  get logLevel() {
+    return this._logLevel;
+  }
+  set logLevel(val) {
+    if (!(val in LogLevel2)) {
+      throw new TypeError(`Invalid value "${val}" assigned to \`logLevel\``);
+    }
+    this._logLevel = val;
+  }
+  // Workaround for setter/getter having to be the same type.
+  setLogLevel(val) {
+    this._logLevel = typeof val === "string" ? levelStringToEnum[val] : val;
+  }
+  get logHandler() {
+    return this._logHandler;
+  }
+  set logHandler(val) {
+    if (typeof val !== "function") {
+      throw new TypeError("Value assigned to `logHandler` must be a function");
+    }
+    this._logHandler = val;
+  }
+  get userLogHandler() {
+    return this._userLogHandler;
+  }
+  set userLogHandler(val) {
+    this._userLogHandler = val;
+  }
+  /**
+   * The functions below are all based on the `console` interface
+   */
+  debug(...args) {
+    this._userLogHandler && this._userLogHandler(this, LogLevel2.DEBUG, ...args);
+    this._logHandler(this, LogLevel2.DEBUG, ...args);
+  }
+  log(...args) {
+    this._userLogHandler && this._userLogHandler(this, LogLevel2.VERBOSE, ...args);
+    this._logHandler(this, LogLevel2.VERBOSE, ...args);
+  }
+  info(...args) {
+    this._userLogHandler && this._userLogHandler(this, LogLevel2.INFO, ...args);
+    this._logHandler(this, LogLevel2.INFO, ...args);
+  }
+  warn(...args) {
+    this._userLogHandler && this._userLogHandler(this, LogLevel2.WARN, ...args);
+    this._logHandler(this, LogLevel2.WARN, ...args);
+  }
+  error(...args) {
+    this._userLogHandler && this._userLogHandler(this, LogLevel2.ERROR, ...args);
+    this._logHandler(this, LogLevel2.ERROR, ...args);
+  }
+};
+
+// node_modules/@firebase/app/node_modules/@firebase/util/dist/index.esm2017.js
 var stringToByteArray$1 = function(str) {
   const out = [];
   let p = 0;
@@ -1110,112 +1251,6 @@ var base64Encode = function(str) {
 var base64urlEncodeWithoutPadding = function(str) {
   return base64Encode(str).replace(/\./g, "");
 };
-var base64Decode2 = function(str) {
-  try {
-    return base642.decodeString(str, true);
-  } catch (e) {
-    console.error("base64Decode failed: ", e);
-  }
-  return null;
-};
-function getGlobal2() {
-  if (typeof self !== "undefined") {
-    return self;
-  }
-  if (typeof window !== "undefined") {
-    return window;
-  }
-  if (typeof global !== "undefined") {
-    return global;
-  }
-  throw new Error("Unable to locate global object.");
-}
-var getDefaultsFromGlobal = () => getGlobal2().__FIREBASE_DEFAULTS__;
-var getDefaultsFromEnvVariable = () => {
-  if (typeof process === "undefined" || typeof process.env === "undefined") {
-    return;
-  }
-  const defaultsJsonString = process.env.__FIREBASE_DEFAULTS__;
-  if (defaultsJsonString) {
-    return JSON.parse(defaultsJsonString);
-  }
-};
-var getDefaultsFromCookie = () => {
-  if (typeof document === "undefined") {
-    return;
-  }
-  let match;
-  try {
-    match = document.cookie.match(/__FIREBASE_DEFAULTS__=([^;]+)/);
-  } catch (e) {
-    return;
-  }
-  const decoded = match && base64Decode2(match[1]);
-  return decoded && JSON.parse(decoded);
-};
-var getDefaults = () => {
-  try {
-    return getDefaultsFromPostinstall() || getDefaultsFromGlobal() || getDefaultsFromEnvVariable() || getDefaultsFromCookie();
-  } catch (e) {
-    console.info(`Unable to get __FIREBASE_DEFAULTS__ due to: ${e}`);
-    return;
-  }
-};
-var getExperimentalSetting2 = (name5) => {
-  var _a;
-  return (_a = getDefaults()) === null || _a === void 0 ? void 0 : _a[`_${name5}`];
-};
-function isCloudWorkstation2(url) {
-  try {
-    const host = url.startsWith("http://") || url.startsWith("https://") ? new URL(url).hostname : url;
-    return host.endsWith(".cloudworkstations.dev");
-  } catch (_a) {
-    return false;
-  }
-}
-function getUA2() {
-  if (typeof navigator !== "undefined" && typeof navigator["userAgent"] === "string") {
-    return navigator["userAgent"];
-  } else {
-    return "";
-  }
-}
-function isMobileCordova2() {
-  return typeof window !== "undefined" && // @ts-ignore Setting up an broadly applicable index signature for Window
-  // just to deal with this case would probably be a bad idea.
-  !!(window["cordova"] || window["phonegap"] || window["PhoneGap"]) && /ios|iphone|ipod|ipad|android|blackberry|iemobile/i.test(getUA2());
-}
-function isNode() {
-  var _a;
-  const forceEnvironment = (_a = getDefaults()) === null || _a === void 0 ? void 0 : _a.forceEnvironment;
-  if (forceEnvironment === "node") {
-    return true;
-  } else if (forceEnvironment === "browser") {
-    return false;
-  }
-  try {
-    return Object.prototype.toString.call(global.process) === "[object process]";
-  } catch (e) {
-    return false;
-  }
-}
-function isCloudflareWorker2() {
-  return typeof navigator !== "undefined" && navigator.userAgent === "Cloudflare-Workers";
-}
-function isBrowserExtension2() {
-  const runtime = typeof chrome === "object" ? chrome.runtime : typeof browser === "object" ? browser.runtime : void 0;
-  return typeof runtime === "object" && runtime.id !== void 0;
-}
-function isReactNative2() {
-  return typeof navigator === "object" && navigator["product"] === "ReactNative";
-}
-function isIE2() {
-  const ua = getUA2();
-  return ua.indexOf("MSIE ") >= 0 || ua.indexOf("Trident/") >= 0;
-}
-function isSafari() {
-  return !isNode() && !!navigator.userAgent && navigator.userAgent.includes("Safari") && !navigator.userAgent.includes("Chrome");
-}
 function isIndexedDBAvailable2() {
   try {
     return typeof indexedDB === "object";
@@ -1284,6 +1319,823 @@ function replaceTemplate(template, data) {
   });
 }
 var PATTERN = /\{\$([^}]+)}/g;
+var MAX_VALUE_MILLIS2 = 4 * 60 * 60 * 1e3;
+
+// node_modules/@firebase/app/dist/esm/index.esm2017.js
+var PlatformLoggerServiceImpl = class {
+  constructor(container) {
+    this.container = container;
+  }
+  // In initial implementation, this will be called by installations on
+  // auth token refresh, and installations will send this string.
+  getPlatformInfoString() {
+    const providers = this.container.getProviders();
+    return providers.map((provider) => {
+      if (isVersionServiceProvider(provider)) {
+        const service = provider.getImmediate();
+        return `${service.library}/${service.version}`;
+      } else {
+        return null;
+      }
+    }).filter((logString) => logString).join(" ");
+  }
+};
+function isVersionServiceProvider(provider) {
+  const component = provider.getComponent();
+  return (component === null || component === void 0 ? void 0 : component.type) === "VERSION";
+}
+var name$q = "@firebase/app";
+var version$1 = "0.10.13";
+var logger2 = new Logger2("@firebase/app");
+var name$p = "@firebase/app-compat";
+var name$o = "@firebase/analytics-compat";
+var name$n = "@firebase/analytics";
+var name$m = "@firebase/app-check-compat";
+var name$l = "@firebase/app-check";
+var name$k = "@firebase/auth";
+var name$j = "@firebase/auth-compat";
+var name$i = "@firebase/database";
+var name$h = "@firebase/data-connect";
+var name$g = "@firebase/database-compat";
+var name$f = "@firebase/functions";
+var name$e = "@firebase/functions-compat";
+var name$d = "@firebase/installations";
+var name$c = "@firebase/installations-compat";
+var name$b = "@firebase/messaging";
+var name$a = "@firebase/messaging-compat";
+var name$9 = "@firebase/performance";
+var name$8 = "@firebase/performance-compat";
+var name$7 = "@firebase/remote-config";
+var name$6 = "@firebase/remote-config-compat";
+var name$5 = "@firebase/storage";
+var name$4 = "@firebase/storage-compat";
+var name$3 = "@firebase/firestore";
+var name$2 = "@firebase/vertexai-preview";
+var name$1 = "@firebase/firestore-compat";
+var name2 = "firebase";
+var version2 = "10.14.1";
+var PLATFORM_LOG_STRING = {
+  [name$q]: "fire-core",
+  [name$p]: "fire-core-compat",
+  [name$n]: "fire-analytics",
+  [name$o]: "fire-analytics-compat",
+  [name$l]: "fire-app-check",
+  [name$m]: "fire-app-check-compat",
+  [name$k]: "fire-auth",
+  [name$j]: "fire-auth-compat",
+  [name$i]: "fire-rtdb",
+  [name$h]: "fire-data-connect",
+  [name$g]: "fire-rtdb-compat",
+  [name$f]: "fire-fn",
+  [name$e]: "fire-fn-compat",
+  [name$d]: "fire-iid",
+  [name$c]: "fire-iid-compat",
+  [name$b]: "fire-fcm",
+  [name$a]: "fire-fcm-compat",
+  [name$9]: "fire-perf",
+  [name$8]: "fire-perf-compat",
+  [name$7]: "fire-rc",
+  [name$6]: "fire-rc-compat",
+  [name$5]: "fire-gcs",
+  [name$4]: "fire-gcs-compat",
+  [name$3]: "fire-fst",
+  [name$1]: "fire-fst-compat",
+  [name$2]: "fire-vertex",
+  "fire-js": "fire-js",
+  [name2]: "fire-js-all"
+};
+var _apps = /* @__PURE__ */ new Map();
+var _serverApps = /* @__PURE__ */ new Map();
+var _components = /* @__PURE__ */ new Map();
+function _addComponent(app, component) {
+  try {
+    app.container.addComponent(component);
+  } catch (e) {
+    logger2.debug(`Component ${component.name} failed to register with FirebaseApp ${app.name}`, e);
+  }
+}
+function _registerComponent2(component) {
+  const componentName = component.name;
+  if (_components.has(componentName)) {
+    logger2.debug(`There were multiple attempts to register component ${componentName}.`);
+    return false;
+  }
+  _components.set(componentName, component);
+  for (const app of _apps.values()) {
+    _addComponent(app, component);
+  }
+  for (const serverApp of _serverApps.values()) {
+    _addComponent(serverApp, component);
+  }
+  return true;
+}
+function _isFirebaseServerApp2(obj) {
+  return obj.settings !== void 0;
+}
+var ERRORS2 = {
+  [
+    "no-app"
+    /* AppError.NO_APP */
+  ]: "No Firebase App '{$appName}' has been created - call initializeApp() first",
+  [
+    "bad-app-name"
+    /* AppError.BAD_APP_NAME */
+  ]: "Illegal App name: '{$appName}'",
+  [
+    "duplicate-app"
+    /* AppError.DUPLICATE_APP */
+  ]: "Firebase App named '{$appName}' already exists with different options or config",
+  [
+    "app-deleted"
+    /* AppError.APP_DELETED */
+  ]: "Firebase App named '{$appName}' already deleted",
+  [
+    "server-app-deleted"
+    /* AppError.SERVER_APP_DELETED */
+  ]: "Firebase Server App has been deleted",
+  [
+    "no-options"
+    /* AppError.NO_OPTIONS */
+  ]: "Need to provide options, when not being deployed to hosting via source.",
+  [
+    "invalid-app-argument"
+    /* AppError.INVALID_APP_ARGUMENT */
+  ]: "firebase.{$appName}() takes either no argument or a Firebase App instance.",
+  [
+    "invalid-log-argument"
+    /* AppError.INVALID_LOG_ARGUMENT */
+  ]: "First argument to `onLog` must be null or a function.",
+  [
+    "idb-open"
+    /* AppError.IDB_OPEN */
+  ]: "Error thrown when opening IndexedDB. Original error: {$originalErrorMessage}.",
+  [
+    "idb-get"
+    /* AppError.IDB_GET */
+  ]: "Error thrown when reading from IndexedDB. Original error: {$originalErrorMessage}.",
+  [
+    "idb-set"
+    /* AppError.IDB_WRITE */
+  ]: "Error thrown when writing to IndexedDB. Original error: {$originalErrorMessage}.",
+  [
+    "idb-delete"
+    /* AppError.IDB_DELETE */
+  ]: "Error thrown when deleting from IndexedDB. Original error: {$originalErrorMessage}.",
+  [
+    "finalization-registry-not-supported"
+    /* AppError.FINALIZATION_REGISTRY_NOT_SUPPORTED */
+  ]: "FirebaseServerApp deleteOnDeref field defined but the JS runtime does not support FinalizationRegistry.",
+  [
+    "invalid-server-app-environment"
+    /* AppError.INVALID_SERVER_APP_ENVIRONMENT */
+  ]: "FirebaseServerApp is not for use in browser environments."
+};
+var ERROR_FACTORY2 = new ErrorFactory2("app", "Firebase", ERRORS2);
+var SDK_VERSION2 = version2;
+function registerVersion2(libraryKeyOrName, version5, variant) {
+  var _a;
+  let library = (_a = PLATFORM_LOG_STRING[libraryKeyOrName]) !== null && _a !== void 0 ? _a : libraryKeyOrName;
+  if (variant) {
+    library += `-${variant}`;
+  }
+  const libraryMismatch = library.match(/\s|\//);
+  const versionMismatch = version5.match(/\s|\//);
+  if (libraryMismatch || versionMismatch) {
+    const warning = [
+      `Unable to register library "${library}" with version "${version5}":`
+    ];
+    if (libraryMismatch) {
+      warning.push(`library name "${library}" contains illegal characters (whitespace or "/")`);
+    }
+    if (libraryMismatch && versionMismatch) {
+      warning.push("and");
+    }
+    if (versionMismatch) {
+      warning.push(`version name "${version5}" contains illegal characters (whitespace or "/")`);
+    }
+    logger2.warn(warning.join(" "));
+    return;
+  }
+  _registerComponent2(new Component2(
+    `${library}-version`,
+    () => ({ library, version: version5 }),
+    "VERSION"
+    /* ComponentType.VERSION */
+  ));
+}
+var DB_NAME2 = "firebase-heartbeat-database";
+var DB_VERSION2 = 1;
+var STORE_NAME2 = "firebase-heartbeat-store";
+var dbPromise2 = null;
+function getDbPromise() {
+  if (!dbPromise2) {
+    dbPromise2 = openDB(DB_NAME2, DB_VERSION2, {
+      upgrade: (db, oldVersion) => {
+        switch (oldVersion) {
+          case 0:
+            try {
+              db.createObjectStore(STORE_NAME2);
+            } catch (e) {
+              console.warn(e);
+            }
+        }
+      }
+    }).catch((e) => {
+      throw ERROR_FACTORY2.create("idb-open", {
+        originalErrorMessage: e.message
+      });
+    });
+  }
+  return dbPromise2;
+}
+async function readHeartbeatsFromIndexedDB(app) {
+  try {
+    const db = await getDbPromise();
+    const tx = db.transaction(STORE_NAME2);
+    const result = await tx.objectStore(STORE_NAME2).get(computeKey2(app));
+    await tx.done;
+    return result;
+  } catch (e) {
+    if (e instanceof FirebaseError2) {
+      logger2.warn(e.message);
+    } else {
+      const idbGetError = ERROR_FACTORY2.create("idb-get", {
+        originalErrorMessage: e === null || e === void 0 ? void 0 : e.message
+      });
+      logger2.warn(idbGetError.message);
+    }
+  }
+}
+async function writeHeartbeatsToIndexedDB(app, heartbeatObject) {
+  try {
+    const db = await getDbPromise();
+    const tx = db.transaction(STORE_NAME2, "readwrite");
+    const objectStore = tx.objectStore(STORE_NAME2);
+    await objectStore.put(heartbeatObject, computeKey2(app));
+    await tx.done;
+  } catch (e) {
+    if (e instanceof FirebaseError2) {
+      logger2.warn(e.message);
+    } else {
+      const idbGetError = ERROR_FACTORY2.create("idb-set", {
+        originalErrorMessage: e === null || e === void 0 ? void 0 : e.message
+      });
+      logger2.warn(idbGetError.message);
+    }
+  }
+}
+function computeKey2(app) {
+  return `${app.name}!${app.options.appId}`;
+}
+var MAX_HEADER_BYTES = 1024;
+var STORED_HEARTBEAT_RETENTION_MAX_MILLIS = 30 * 24 * 60 * 60 * 1e3;
+var HeartbeatServiceImpl = class {
+  constructor(container) {
+    this.container = container;
+    this._heartbeatsCache = null;
+    const app = this.container.getProvider("app").getImmediate();
+    this._storage = new HeartbeatStorageImpl(app);
+    this._heartbeatsCachePromise = this._storage.read().then((result) => {
+      this._heartbeatsCache = result;
+      return result;
+    });
+  }
+  /**
+   * Called to report a heartbeat. The function will generate
+   * a HeartbeatsByUserAgent object, update heartbeatsCache, and persist it
+   * to IndexedDB.
+   * Note that we only store one heartbeat per day. So if a heartbeat for today is
+   * already logged, subsequent calls to this function in the same day will be ignored.
+   */
+  async triggerHeartbeat() {
+    var _a, _b;
+    try {
+      const platformLogger = this.container.getProvider("platform-logger").getImmediate();
+      const agent = platformLogger.getPlatformInfoString();
+      const date = getUTCDateString();
+      if (((_a = this._heartbeatsCache) === null || _a === void 0 ? void 0 : _a.heartbeats) == null) {
+        this._heartbeatsCache = await this._heartbeatsCachePromise;
+        if (((_b = this._heartbeatsCache) === null || _b === void 0 ? void 0 : _b.heartbeats) == null) {
+          return;
+        }
+      }
+      if (this._heartbeatsCache.lastSentHeartbeatDate === date || this._heartbeatsCache.heartbeats.some((singleDateHeartbeat) => singleDateHeartbeat.date === date)) {
+        return;
+      } else {
+        this._heartbeatsCache.heartbeats.push({ date, agent });
+      }
+      this._heartbeatsCache.heartbeats = this._heartbeatsCache.heartbeats.filter((singleDateHeartbeat) => {
+        const hbTimestamp = new Date(singleDateHeartbeat.date).valueOf();
+        const now = Date.now();
+        return now - hbTimestamp <= STORED_HEARTBEAT_RETENTION_MAX_MILLIS;
+      });
+      return this._storage.overwrite(this._heartbeatsCache);
+    } catch (e) {
+      logger2.warn(e);
+    }
+  }
+  /**
+   * Returns a base64 encoded string which can be attached to the heartbeat-specific header directly.
+   * It also clears all heartbeats from memory as well as in IndexedDB.
+   *
+   * NOTE: Consuming product SDKs should not send the header if this method
+   * returns an empty string.
+   */
+  async getHeartbeatsHeader() {
+    var _a;
+    try {
+      if (this._heartbeatsCache === null) {
+        await this._heartbeatsCachePromise;
+      }
+      if (((_a = this._heartbeatsCache) === null || _a === void 0 ? void 0 : _a.heartbeats) == null || this._heartbeatsCache.heartbeats.length === 0) {
+        return "";
+      }
+      const date = getUTCDateString();
+      const { heartbeatsToSend, unsentEntries } = extractHeartbeatsForHeader(this._heartbeatsCache.heartbeats);
+      const headerString = base64urlEncodeWithoutPadding(JSON.stringify({ version: 2, heartbeats: heartbeatsToSend }));
+      this._heartbeatsCache.lastSentHeartbeatDate = date;
+      if (unsentEntries.length > 0) {
+        this._heartbeatsCache.heartbeats = unsentEntries;
+        await this._storage.overwrite(this._heartbeatsCache);
+      } else {
+        this._heartbeatsCache.heartbeats = [];
+        void this._storage.overwrite(this._heartbeatsCache);
+      }
+      return headerString;
+    } catch (e) {
+      logger2.warn(e);
+      return "";
+    }
+  }
+};
+function getUTCDateString() {
+  const today = /* @__PURE__ */ new Date();
+  return today.toISOString().substring(0, 10);
+}
+function extractHeartbeatsForHeader(heartbeatsCache, maxSize = MAX_HEADER_BYTES) {
+  const heartbeatsToSend = [];
+  let unsentEntries = heartbeatsCache.slice();
+  for (const singleDateHeartbeat of heartbeatsCache) {
+    const heartbeatEntry = heartbeatsToSend.find((hb) => hb.agent === singleDateHeartbeat.agent);
+    if (!heartbeatEntry) {
+      heartbeatsToSend.push({
+        agent: singleDateHeartbeat.agent,
+        dates: [singleDateHeartbeat.date]
+      });
+      if (countBytes(heartbeatsToSend) > maxSize) {
+        heartbeatsToSend.pop();
+        break;
+      }
+    } else {
+      heartbeatEntry.dates.push(singleDateHeartbeat.date);
+      if (countBytes(heartbeatsToSend) > maxSize) {
+        heartbeatEntry.dates.pop();
+        break;
+      }
+    }
+    unsentEntries = unsentEntries.slice(1);
+  }
+  return {
+    heartbeatsToSend,
+    unsentEntries
+  };
+}
+var HeartbeatStorageImpl = class {
+  constructor(app) {
+    this.app = app;
+    this._canUseIndexedDBPromise = this.runIndexedDBEnvironmentCheck();
+  }
+  async runIndexedDBEnvironmentCheck() {
+    if (!isIndexedDBAvailable2()) {
+      return false;
+    } else {
+      return validateIndexedDBOpenable().then(() => true).catch(() => false);
+    }
+  }
+  /**
+   * Read all heartbeats.
+   */
+  async read() {
+    const canUseIndexedDB = await this._canUseIndexedDBPromise;
+    if (!canUseIndexedDB) {
+      return { heartbeats: [] };
+    } else {
+      const idbHeartbeatObject = await readHeartbeatsFromIndexedDB(this.app);
+      if (idbHeartbeatObject === null || idbHeartbeatObject === void 0 ? void 0 : idbHeartbeatObject.heartbeats) {
+        return idbHeartbeatObject;
+      } else {
+        return { heartbeats: [] };
+      }
+    }
+  }
+  // overwrite the storage with the provided heartbeats
+  async overwrite(heartbeatsObject) {
+    var _a;
+    const canUseIndexedDB = await this._canUseIndexedDBPromise;
+    if (!canUseIndexedDB) {
+      return;
+    } else {
+      const existingHeartbeatsObject = await this.read();
+      return writeHeartbeatsToIndexedDB(this.app, {
+        lastSentHeartbeatDate: (_a = heartbeatsObject.lastSentHeartbeatDate) !== null && _a !== void 0 ? _a : existingHeartbeatsObject.lastSentHeartbeatDate,
+        heartbeats: heartbeatsObject.heartbeats
+      });
+    }
+  }
+  // add heartbeats
+  async add(heartbeatsObject) {
+    var _a;
+    const canUseIndexedDB = await this._canUseIndexedDBPromise;
+    if (!canUseIndexedDB) {
+      return;
+    } else {
+      const existingHeartbeatsObject = await this.read();
+      return writeHeartbeatsToIndexedDB(this.app, {
+        lastSentHeartbeatDate: (_a = heartbeatsObject.lastSentHeartbeatDate) !== null && _a !== void 0 ? _a : existingHeartbeatsObject.lastSentHeartbeatDate,
+        heartbeats: [
+          ...existingHeartbeatsObject.heartbeats,
+          ...heartbeatsObject.heartbeats
+        ]
+      });
+    }
+  }
+};
+function countBytes(heartbeatsCache) {
+  return base64urlEncodeWithoutPadding(
+    // heartbeatsCache wrapper properties
+    JSON.stringify({ version: 2, heartbeats: heartbeatsCache })
+  ).length;
+}
+function registerCoreComponents(variant) {
+  _registerComponent2(new Component2(
+    "platform-logger",
+    (container) => new PlatformLoggerServiceImpl(container),
+    "PRIVATE"
+    /* ComponentType.PRIVATE */
+  ));
+  _registerComponent2(new Component2(
+    "heartbeat",
+    (container) => new HeartbeatServiceImpl(container),
+    "PRIVATE"
+    /* ComponentType.PRIVATE */
+  ));
+  registerVersion2(name$q, version$1, variant);
+  registerVersion2(name$q, version$1, "esm2017");
+  registerVersion2("fire-js", "");
+}
+registerCoreComponents("");
+
+// node_modules/@firebase/auth/node_modules/@firebase/util/dist/index.esm2017.js
+var stringToByteArray$12 = function(str) {
+  const out = [];
+  let p = 0;
+  for (let i = 0; i < str.length; i++) {
+    let c = str.charCodeAt(i);
+    if (c < 128) {
+      out[p++] = c;
+    } else if (c < 2048) {
+      out[p++] = c >> 6 | 192;
+      out[p++] = c & 63 | 128;
+    } else if ((c & 64512) === 55296 && i + 1 < str.length && (str.charCodeAt(i + 1) & 64512) === 56320) {
+      c = 65536 + ((c & 1023) << 10) + (str.charCodeAt(++i) & 1023);
+      out[p++] = c >> 18 | 240;
+      out[p++] = c >> 12 & 63 | 128;
+      out[p++] = c >> 6 & 63 | 128;
+      out[p++] = c & 63 | 128;
+    } else {
+      out[p++] = c >> 12 | 224;
+      out[p++] = c >> 6 & 63 | 128;
+      out[p++] = c & 63 | 128;
+    }
+  }
+  return out;
+};
+var byteArrayToString2 = function(bytes) {
+  const out = [];
+  let pos = 0, c = 0;
+  while (pos < bytes.length) {
+    const c1 = bytes[pos++];
+    if (c1 < 128) {
+      out[c++] = String.fromCharCode(c1);
+    } else if (c1 > 191 && c1 < 224) {
+      const c2 = bytes[pos++];
+      out[c++] = String.fromCharCode((c1 & 31) << 6 | c2 & 63);
+    } else if (c1 > 239 && c1 < 365) {
+      const c2 = bytes[pos++];
+      const c3 = bytes[pos++];
+      const c4 = bytes[pos++];
+      const u = ((c1 & 7) << 18 | (c2 & 63) << 12 | (c3 & 63) << 6 | c4 & 63) - 65536;
+      out[c++] = String.fromCharCode(55296 + (u >> 10));
+      out[c++] = String.fromCharCode(56320 + (u & 1023));
+    } else {
+      const c2 = bytes[pos++];
+      const c3 = bytes[pos++];
+      out[c++] = String.fromCharCode((c1 & 15) << 12 | (c2 & 63) << 6 | c3 & 63);
+    }
+  }
+  return out.join("");
+};
+var base643 = {
+  /**
+   * Maps bytes to characters.
+   */
+  byteToCharMap_: null,
+  /**
+   * Maps characters to bytes.
+   */
+  charToByteMap_: null,
+  /**
+   * Maps bytes to websafe characters.
+   * @private
+   */
+  byteToCharMapWebSafe_: null,
+  /**
+   * Maps websafe characters to bytes.
+   * @private
+   */
+  charToByteMapWebSafe_: null,
+  /**
+   * Our default alphabet, shared between
+   * ENCODED_VALS and ENCODED_VALS_WEBSAFE
+   */
+  ENCODED_VALS_BASE: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+  /**
+   * Our default alphabet. Value 64 (=) is special; it means "nothing."
+   */
+  get ENCODED_VALS() {
+    return this.ENCODED_VALS_BASE + "+/=";
+  },
+  /**
+   * Our websafe alphabet.
+   */
+  get ENCODED_VALS_WEBSAFE() {
+    return this.ENCODED_VALS_BASE + "-_.";
+  },
+  /**
+   * Whether this browser supports the atob and btoa functions. This extension
+   * started at Mozilla but is now implemented by many browsers. We use the
+   * ASSUME_* variables to avoid pulling in the full useragent detection library
+   * but still allowing the standard per-browser compilations.
+   *
+   */
+  HAS_NATIVE_SUPPORT: typeof atob === "function",
+  /**
+   * Base64-encode an array of bytes.
+   *
+   * @param input An array of bytes (numbers with
+   *     value in [0, 255]) to encode.
+   * @param webSafe Boolean indicating we should use the
+   *     alternative alphabet.
+   * @return The base64 encoded string.
+   */
+  encodeByteArray(input, webSafe) {
+    if (!Array.isArray(input)) {
+      throw Error("encodeByteArray takes an array as a parameter");
+    }
+    this.init_();
+    const byteToCharMap = webSafe ? this.byteToCharMapWebSafe_ : this.byteToCharMap_;
+    const output = [];
+    for (let i = 0; i < input.length; i += 3) {
+      const byte1 = input[i];
+      const haveByte2 = i + 1 < input.length;
+      const byte2 = haveByte2 ? input[i + 1] : 0;
+      const haveByte3 = i + 2 < input.length;
+      const byte3 = haveByte3 ? input[i + 2] : 0;
+      const outByte1 = byte1 >> 2;
+      const outByte2 = (byte1 & 3) << 4 | byte2 >> 4;
+      let outByte3 = (byte2 & 15) << 2 | byte3 >> 6;
+      let outByte4 = byte3 & 63;
+      if (!haveByte3) {
+        outByte4 = 64;
+        if (!haveByte2) {
+          outByte3 = 64;
+        }
+      }
+      output.push(byteToCharMap[outByte1], byteToCharMap[outByte2], byteToCharMap[outByte3], byteToCharMap[outByte4]);
+    }
+    return output.join("");
+  },
+  /**
+   * Base64-encode a string.
+   *
+   * @param input A string to encode.
+   * @param webSafe If true, we should use the
+   *     alternative alphabet.
+   * @return The base64 encoded string.
+   */
+  encodeString(input, webSafe) {
+    if (this.HAS_NATIVE_SUPPORT && !webSafe) {
+      return btoa(input);
+    }
+    return this.encodeByteArray(stringToByteArray$12(input), webSafe);
+  },
+  /**
+   * Base64-decode a string.
+   *
+   * @param input to decode.
+   * @param webSafe True if we should use the
+   *     alternative alphabet.
+   * @return string representing the decoded value.
+   */
+  decodeString(input, webSafe) {
+    if (this.HAS_NATIVE_SUPPORT && !webSafe) {
+      return atob(input);
+    }
+    return byteArrayToString2(this.decodeStringToByteArray(input, webSafe));
+  },
+  /**
+   * Base64-decode a string.
+   *
+   * In base-64 decoding, groups of four characters are converted into three
+   * bytes.  If the encoder did not apply padding, the input length may not
+   * be a multiple of 4.
+   *
+   * In this case, the last group will have fewer than 4 characters, and
+   * padding will be inferred.  If the group has one or two characters, it decodes
+   * to one byte.  If the group has three characters, it decodes to two bytes.
+   *
+   * @param input Input to decode.
+   * @param webSafe True if we should use the web-safe alphabet.
+   * @return bytes representing the decoded value.
+   */
+  decodeStringToByteArray(input, webSafe) {
+    this.init_();
+    const charToByteMap = webSafe ? this.charToByteMapWebSafe_ : this.charToByteMap_;
+    const output = [];
+    for (let i = 0; i < input.length; ) {
+      const byte1 = charToByteMap[input.charAt(i++)];
+      const haveByte2 = i < input.length;
+      const byte2 = haveByte2 ? charToByteMap[input.charAt(i)] : 0;
+      ++i;
+      const haveByte3 = i < input.length;
+      const byte3 = haveByte3 ? charToByteMap[input.charAt(i)] : 64;
+      ++i;
+      const haveByte4 = i < input.length;
+      const byte4 = haveByte4 ? charToByteMap[input.charAt(i)] : 64;
+      ++i;
+      if (byte1 == null || byte2 == null || byte3 == null || byte4 == null) {
+        throw new DecodeBase64StringError2();
+      }
+      const outByte1 = byte1 << 2 | byte2 >> 4;
+      output.push(outByte1);
+      if (byte3 !== 64) {
+        const outByte2 = byte2 << 4 & 240 | byte3 >> 2;
+        output.push(outByte2);
+        if (byte4 !== 64) {
+          const outByte3 = byte3 << 6 & 192 | byte4;
+          output.push(outByte3);
+        }
+      }
+    }
+    return output;
+  },
+  /**
+   * Lazy static initialization function. Called before
+   * accessing any of the static map variables.
+   * @private
+   */
+  init_() {
+    if (!this.byteToCharMap_) {
+      this.byteToCharMap_ = {};
+      this.charToByteMap_ = {};
+      this.byteToCharMapWebSafe_ = {};
+      this.charToByteMapWebSafe_ = {};
+      for (let i = 0; i < this.ENCODED_VALS.length; i++) {
+        this.byteToCharMap_[i] = this.ENCODED_VALS.charAt(i);
+        this.charToByteMap_[this.byteToCharMap_[i]] = i;
+        this.byteToCharMapWebSafe_[i] = this.ENCODED_VALS_WEBSAFE.charAt(i);
+        this.charToByteMapWebSafe_[this.byteToCharMapWebSafe_[i]] = i;
+        if (i >= this.ENCODED_VALS_BASE.length) {
+          this.charToByteMap_[this.ENCODED_VALS_WEBSAFE.charAt(i)] = i;
+          this.charToByteMapWebSafe_[this.ENCODED_VALS.charAt(i)] = i;
+        }
+      }
+    }
+  }
+};
+var DecodeBase64StringError2 = class extends Error {
+  constructor() {
+    super(...arguments);
+    this.name = "DecodeBase64StringError";
+  }
+};
+var base64Decode2 = function(str) {
+  try {
+    return base643.decodeString(str, true);
+  } catch (e) {
+    console.error("base64Decode failed: ", e);
+  }
+  return null;
+};
+function getGlobal2() {
+  if (typeof self !== "undefined") {
+    return self;
+  }
+  if (typeof window !== "undefined") {
+    return window;
+  }
+  if (typeof global !== "undefined") {
+    return global;
+  }
+  throw new Error("Unable to locate global object.");
+}
+var getDefaultsFromGlobal = () => getGlobal2().__FIREBASE_DEFAULTS__;
+var getDefaultsFromEnvVariable = () => {
+  if (typeof process === "undefined" || typeof process.env === "undefined") {
+    return;
+  }
+  const defaultsJsonString = process.env.__FIREBASE_DEFAULTS__;
+  if (defaultsJsonString) {
+    return JSON.parse(defaultsJsonString);
+  }
+};
+var getDefaultsFromCookie = () => {
+  if (typeof document === "undefined") {
+    return;
+  }
+  let match;
+  try {
+    match = document.cookie.match(/__FIREBASE_DEFAULTS__=([^;]+)/);
+  } catch (e) {
+    return;
+  }
+  const decoded = match && base64Decode2(match[1]);
+  return decoded && JSON.parse(decoded);
+};
+var getDefaults = () => {
+  try {
+    return getDefaultsFromGlobal() || getDefaultsFromEnvVariable() || getDefaultsFromCookie();
+  } catch (e) {
+    console.info(`Unable to get __FIREBASE_DEFAULTS__ due to: ${e}`);
+    return;
+  }
+};
+var getExperimentalSetting2 = (name5) => {
+  var _a;
+  return (_a = getDefaults()) === null || _a === void 0 ? void 0 : _a[`_${name5}`];
+};
+function getUA2() {
+  if (typeof navigator !== "undefined" && typeof navigator["userAgent"] === "string") {
+    return navigator["userAgent"];
+  } else {
+    return "";
+  }
+}
+function isMobileCordova2() {
+  return typeof window !== "undefined" && // @ts-ignore Setting up an broadly applicable index signature for Window
+  // just to deal with this case would probably be a bad idea.
+  !!(window["cordova"] || window["phonegap"] || window["PhoneGap"]) && /ios|iphone|ipod|ipad|android|blackberry|iemobile/i.test(getUA2());
+}
+function isCloudflareWorker2() {
+  return typeof navigator !== "undefined" && navigator.userAgent === "Cloudflare-Workers";
+}
+function isBrowserExtension2() {
+  const runtime = typeof chrome === "object" ? chrome.runtime : typeof browser === "object" ? browser.runtime : void 0;
+  return typeof runtime === "object" && runtime.id !== void 0;
+}
+function isReactNative2() {
+  return typeof navigator === "object" && navigator["product"] === "ReactNative";
+}
+function isIE2() {
+  const ua = getUA2();
+  return ua.indexOf("MSIE ") >= 0 || ua.indexOf("Trident/") >= 0;
+}
+var ERROR_NAME2 = "FirebaseError";
+var FirebaseError3 = class _FirebaseError extends Error {
+  constructor(code, message, customData) {
+    super(message);
+    this.code = code;
+    this.customData = customData;
+    this.name = ERROR_NAME2;
+    Object.setPrototypeOf(this, _FirebaseError.prototype);
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, ErrorFactory3.prototype.create);
+    }
+  }
+};
+var ErrorFactory3 = class {
+  constructor(service, serviceName, errors) {
+    this.service = service;
+    this.serviceName = serviceName;
+    this.errors = errors;
+  }
+  create(code, ...data) {
+    const customData = data[0] || {};
+    const fullCode = `${this.service}/${code}`;
+    const template = this.errors[code];
+    const message = template ? replaceTemplate2(template, customData) : "Error";
+    const fullMessage = `${this.serviceName}: ${message} (${fullCode}).`;
+    const error = new FirebaseError3(fullCode, fullMessage, customData);
+    return error;
+  }
+};
+function replaceTemplate2(template, data) {
+  return template.replace(PATTERN2, (_, key) => {
+    const value = data[key];
+    return value != null ? String(value) : `<${key}?>`;
+  });
+}
+var PATTERN2 = /\{\$([^}]+)}/g;
 function querystring2(querystringParams) {
   const params = [];
   for (const [key, value] of Object.entries(querystringParams)) {
@@ -1469,7 +2321,7 @@ function implementsAnyMethods(obj, methods) {
 }
 function noop() {
 }
-var MAX_VALUE_MILLIS = 4 * 60 * 60 * 1e3;
+var MAX_VALUE_MILLIS3 = 4 * 60 * 60 * 1e3;
 function getModularInstance2(service) {
   if (service && service._delegate) {
     return service._delegate;
@@ -1478,629 +2330,7 @@ function getModularInstance2(service) {
   }
 }
 
-// node_modules/@firebase/component/dist/esm/index.esm2017.js
-var Component2 = class {
-  /**
-   *
-   * @param name The public service name, e.g. app, auth, firestore, database
-   * @param instanceFactory Service factory responsible for creating the public interface
-   * @param type whether the service provided by the component is public or private
-   */
-  constructor(name5, instanceFactory, type) {
-    this.name = name5;
-    this.instanceFactory = instanceFactory;
-    this.type = type;
-    this.multipleInstances = false;
-    this.serviceProps = {};
-    this.instantiationMode = "LAZY";
-    this.onInstanceCreated = null;
-  }
-  setInstantiationMode(mode) {
-    this.instantiationMode = mode;
-    return this;
-  }
-  setMultipleInstances(multipleInstances) {
-    this.multipleInstances = multipleInstances;
-    return this;
-  }
-  setServiceProps(props) {
-    this.serviceProps = props;
-    return this;
-  }
-  setInstanceCreatedCallback(callback) {
-    this.onInstanceCreated = callback;
-    return this;
-  }
-};
-
-// node_modules/@firebase/logger/dist/esm/index.esm2017.js
-var instances = [];
-var LogLevel2;
-(function(LogLevel3) {
-  LogLevel3[LogLevel3["DEBUG"] = 0] = "DEBUG";
-  LogLevel3[LogLevel3["VERBOSE"] = 1] = "VERBOSE";
-  LogLevel3[LogLevel3["INFO"] = 2] = "INFO";
-  LogLevel3[LogLevel3["WARN"] = 3] = "WARN";
-  LogLevel3[LogLevel3["ERROR"] = 4] = "ERROR";
-  LogLevel3[LogLevel3["SILENT"] = 5] = "SILENT";
-})(LogLevel2 || (LogLevel2 = {}));
-var levelStringToEnum = {
-  "debug": LogLevel2.DEBUG,
-  "verbose": LogLevel2.VERBOSE,
-  "info": LogLevel2.INFO,
-  "warn": LogLevel2.WARN,
-  "error": LogLevel2.ERROR,
-  "silent": LogLevel2.SILENT
-};
-var defaultLogLevel = LogLevel2.INFO;
-var ConsoleMethod = {
-  [LogLevel2.DEBUG]: "log",
-  [LogLevel2.VERBOSE]: "log",
-  [LogLevel2.INFO]: "info",
-  [LogLevel2.WARN]: "warn",
-  [LogLevel2.ERROR]: "error"
-};
-var defaultLogHandler = (instance, logType, ...args) => {
-  if (logType < instance.logLevel) {
-    return;
-  }
-  const now = (/* @__PURE__ */ new Date()).toISOString();
-  const method = ConsoleMethod[logType];
-  if (method) {
-    console[method](`[${now}]  ${instance.name}:`, ...args);
-  } else {
-    throw new Error(`Attempted to log a message with an invalid logType (value: ${logType})`);
-  }
-};
-var Logger2 = class {
-  /**
-   * Gives you an instance of a Logger to capture messages according to
-   * Firebase's logging scheme.
-   *
-   * @param name The name that the logs will be associated with
-   */
-  constructor(name5) {
-    this.name = name5;
-    this._logLevel = defaultLogLevel;
-    this._logHandler = defaultLogHandler;
-    this._userLogHandler = null;
-    instances.push(this);
-  }
-  get logLevel() {
-    return this._logLevel;
-  }
-  set logLevel(val) {
-    if (!(val in LogLevel2)) {
-      throw new TypeError(`Invalid value "${val}" assigned to \`logLevel\``);
-    }
-    this._logLevel = val;
-  }
-  // Workaround for setter/getter having to be the same type.
-  setLogLevel(val) {
-    this._logLevel = typeof val === "string" ? levelStringToEnum[val] : val;
-  }
-  get logHandler() {
-    return this._logHandler;
-  }
-  set logHandler(val) {
-    if (typeof val !== "function") {
-      throw new TypeError("Value assigned to `logHandler` must be a function");
-    }
-    this._logHandler = val;
-  }
-  get userLogHandler() {
-    return this._userLogHandler;
-  }
-  set userLogHandler(val) {
-    this._userLogHandler = val;
-  }
-  /**
-   * The functions below are all based on the `console` interface
-   */
-  debug(...args) {
-    this._userLogHandler && this._userLogHandler(this, LogLevel2.DEBUG, ...args);
-    this._logHandler(this, LogLevel2.DEBUG, ...args);
-  }
-  log(...args) {
-    this._userLogHandler && this._userLogHandler(this, LogLevel2.VERBOSE, ...args);
-    this._logHandler(this, LogLevel2.VERBOSE, ...args);
-  }
-  info(...args) {
-    this._userLogHandler && this._userLogHandler(this, LogLevel2.INFO, ...args);
-    this._logHandler(this, LogLevel2.INFO, ...args);
-  }
-  warn(...args) {
-    this._userLogHandler && this._userLogHandler(this, LogLevel2.WARN, ...args);
-    this._logHandler(this, LogLevel2.WARN, ...args);
-  }
-  error(...args) {
-    this._userLogHandler && this._userLogHandler(this, LogLevel2.ERROR, ...args);
-    this._logHandler(this, LogLevel2.ERROR, ...args);
-  }
-};
-
-// node_modules/@firebase/app/dist/esm/index.esm2017.js
-var PlatformLoggerServiceImpl = class {
-  constructor(container) {
-    this.container = container;
-  }
-  // In initial implementation, this will be called by installations on
-  // auth token refresh, and installations will send this string.
-  getPlatformInfoString() {
-    const providers = this.container.getProviders();
-    return providers.map((provider) => {
-      if (isVersionServiceProvider(provider)) {
-        const service = provider.getImmediate();
-        return `${service.library}/${service.version}`;
-      } else {
-        return null;
-      }
-    }).filter((logString) => logString).join(" ");
-  }
-};
-function isVersionServiceProvider(provider) {
-  const component = provider.getComponent();
-  return (component === null || component === void 0 ? void 0 : component.type) === "VERSION";
-}
-var name$q = "@firebase/app";
-var version$1 = "0.13.2";
-var logger2 = new Logger2("@firebase/app");
-var name$p = "@firebase/app-compat";
-var name$o = "@firebase/analytics-compat";
-var name$n = "@firebase/analytics";
-var name$m = "@firebase/app-check-compat";
-var name$l = "@firebase/app-check";
-var name$k = "@firebase/auth";
-var name$j = "@firebase/auth-compat";
-var name$i = "@firebase/database";
-var name$h = "@firebase/data-connect";
-var name$g = "@firebase/database-compat";
-var name$f = "@firebase/functions";
-var name$e = "@firebase/functions-compat";
-var name$d = "@firebase/installations";
-var name$c = "@firebase/installations-compat";
-var name$b = "@firebase/messaging";
-var name$a = "@firebase/messaging-compat";
-var name$9 = "@firebase/performance";
-var name$8 = "@firebase/performance-compat";
-var name$7 = "@firebase/remote-config";
-var name$6 = "@firebase/remote-config-compat";
-var name$5 = "@firebase/storage";
-var name$4 = "@firebase/storage-compat";
-var name$3 = "@firebase/firestore";
-var name$2 = "@firebase/ai";
-var name$1 = "@firebase/firestore-compat";
-var name2 = "firebase";
-var version2 = "11.10.0";
-var PLATFORM_LOG_STRING = {
-  [name$q]: "fire-core",
-  [name$p]: "fire-core-compat",
-  [name$n]: "fire-analytics",
-  [name$o]: "fire-analytics-compat",
-  [name$l]: "fire-app-check",
-  [name$m]: "fire-app-check-compat",
-  [name$k]: "fire-auth",
-  [name$j]: "fire-auth-compat",
-  [name$i]: "fire-rtdb",
-  [name$h]: "fire-data-connect",
-  [name$g]: "fire-rtdb-compat",
-  [name$f]: "fire-fn",
-  [name$e]: "fire-fn-compat",
-  [name$d]: "fire-iid",
-  [name$c]: "fire-iid-compat",
-  [name$b]: "fire-fcm",
-  [name$a]: "fire-fcm-compat",
-  [name$9]: "fire-perf",
-  [name$8]: "fire-perf-compat",
-  [name$7]: "fire-rc",
-  [name$6]: "fire-rc-compat",
-  [name$5]: "fire-gcs",
-  [name$4]: "fire-gcs-compat",
-  [name$3]: "fire-fst",
-  [name$1]: "fire-fst-compat",
-  [name$2]: "fire-vertex",
-  "fire-js": "fire-js",
-  // Platform identifier for JS SDK.
-  [name2]: "fire-js-all"
-};
-var _apps = /* @__PURE__ */ new Map();
-var _serverApps = /* @__PURE__ */ new Map();
-var _components = /* @__PURE__ */ new Map();
-function _addComponent(app, component) {
-  try {
-    app.container.addComponent(component);
-  } catch (e) {
-    logger2.debug(`Component ${component.name} failed to register with FirebaseApp ${app.name}`, e);
-  }
-}
-function _registerComponent2(component) {
-  const componentName = component.name;
-  if (_components.has(componentName)) {
-    logger2.debug(`There were multiple attempts to register component ${componentName}.`);
-    return false;
-  }
-  _components.set(componentName, component);
-  for (const app of _apps.values()) {
-    _addComponent(app, component);
-  }
-  for (const serverApp of _serverApps.values()) {
-    _addComponent(serverApp, component);
-  }
-  return true;
-}
-function _isFirebaseServerApp2(obj) {
-  if (obj === null || obj === void 0) {
-    return false;
-  }
-  return obj.settings !== void 0;
-}
-var ERRORS2 = {
-  [
-    "no-app"
-    /* AppError.NO_APP */
-  ]: "No Firebase App '{$appName}' has been created - call initializeApp() first",
-  [
-    "bad-app-name"
-    /* AppError.BAD_APP_NAME */
-  ]: "Illegal App name: '{$appName}'",
-  [
-    "duplicate-app"
-    /* AppError.DUPLICATE_APP */
-  ]: "Firebase App named '{$appName}' already exists with different options or config",
-  [
-    "app-deleted"
-    /* AppError.APP_DELETED */
-  ]: "Firebase App named '{$appName}' already deleted",
-  [
-    "server-app-deleted"
-    /* AppError.SERVER_APP_DELETED */
-  ]: "Firebase Server App has been deleted",
-  [
-    "no-options"
-    /* AppError.NO_OPTIONS */
-  ]: "Need to provide options, when not being deployed to hosting via source.",
-  [
-    "invalid-app-argument"
-    /* AppError.INVALID_APP_ARGUMENT */
-  ]: "firebase.{$appName}() takes either no argument or a Firebase App instance.",
-  [
-    "invalid-log-argument"
-    /* AppError.INVALID_LOG_ARGUMENT */
-  ]: "First argument to `onLog` must be null or a function.",
-  [
-    "idb-open"
-    /* AppError.IDB_OPEN */
-  ]: "Error thrown when opening IndexedDB. Original error: {$originalErrorMessage}.",
-  [
-    "idb-get"
-    /* AppError.IDB_GET */
-  ]: "Error thrown when reading from IndexedDB. Original error: {$originalErrorMessage}.",
-  [
-    "idb-set"
-    /* AppError.IDB_WRITE */
-  ]: "Error thrown when writing to IndexedDB. Original error: {$originalErrorMessage}.",
-  [
-    "idb-delete"
-    /* AppError.IDB_DELETE */
-  ]: "Error thrown when deleting from IndexedDB. Original error: {$originalErrorMessage}.",
-  [
-    "finalization-registry-not-supported"
-    /* AppError.FINALIZATION_REGISTRY_NOT_SUPPORTED */
-  ]: "FirebaseServerApp deleteOnDeref field defined but the JS runtime does not support FinalizationRegistry.",
-  [
-    "invalid-server-app-environment"
-    /* AppError.INVALID_SERVER_APP_ENVIRONMENT */
-  ]: "FirebaseServerApp is not for use in browser environments."
-};
-var ERROR_FACTORY2 = new ErrorFactory2("app", "Firebase", ERRORS2);
-var SDK_VERSION2 = version2;
-function registerVersion2(libraryKeyOrName, version5, variant) {
-  var _a;
-  let library = (_a = PLATFORM_LOG_STRING[libraryKeyOrName]) !== null && _a !== void 0 ? _a : libraryKeyOrName;
-  if (variant) {
-    library += `-${variant}`;
-  }
-  const libraryMismatch = library.match(/\s|\//);
-  const versionMismatch = version5.match(/\s|\//);
-  if (libraryMismatch || versionMismatch) {
-    const warning = [
-      `Unable to register library "${library}" with version "${version5}":`
-    ];
-    if (libraryMismatch) {
-      warning.push(`library name "${library}" contains illegal characters (whitespace or "/")`);
-    }
-    if (libraryMismatch && versionMismatch) {
-      warning.push("and");
-    }
-    if (versionMismatch) {
-      warning.push(`version name "${version5}" contains illegal characters (whitespace or "/")`);
-    }
-    logger2.warn(warning.join(" "));
-    return;
-  }
-  _registerComponent2(new Component2(
-    `${library}-version`,
-    () => ({ library, version: version5 }),
-    "VERSION"
-    /* ComponentType.VERSION */
-  ));
-}
-var DB_NAME2 = "firebase-heartbeat-database";
-var DB_VERSION2 = 1;
-var STORE_NAME2 = "firebase-heartbeat-store";
-var dbPromise2 = null;
-function getDbPromise() {
-  if (!dbPromise2) {
-    dbPromise2 = openDB(DB_NAME2, DB_VERSION2, {
-      upgrade: (db, oldVersion) => {
-        switch (oldVersion) {
-          case 0:
-            try {
-              db.createObjectStore(STORE_NAME2);
-            } catch (e) {
-              console.warn(e);
-            }
-        }
-      }
-    }).catch((e) => {
-      throw ERROR_FACTORY2.create("idb-open", {
-        originalErrorMessage: e.message
-      });
-    });
-  }
-  return dbPromise2;
-}
-async function readHeartbeatsFromIndexedDB(app) {
-  try {
-    const db = await getDbPromise();
-    const tx = db.transaction(STORE_NAME2);
-    const result = await tx.objectStore(STORE_NAME2).get(computeKey2(app));
-    await tx.done;
-    return result;
-  } catch (e) {
-    if (e instanceof FirebaseError2) {
-      logger2.warn(e.message);
-    } else {
-      const idbGetError = ERROR_FACTORY2.create("idb-get", {
-        originalErrorMessage: e === null || e === void 0 ? void 0 : e.message
-      });
-      logger2.warn(idbGetError.message);
-    }
-  }
-}
-async function writeHeartbeatsToIndexedDB(app, heartbeatObject) {
-  try {
-    const db = await getDbPromise();
-    const tx = db.transaction(STORE_NAME2, "readwrite");
-    const objectStore = tx.objectStore(STORE_NAME2);
-    await objectStore.put(heartbeatObject, computeKey2(app));
-    await tx.done;
-  } catch (e) {
-    if (e instanceof FirebaseError2) {
-      logger2.warn(e.message);
-    } else {
-      const idbGetError = ERROR_FACTORY2.create("idb-set", {
-        originalErrorMessage: e === null || e === void 0 ? void 0 : e.message
-      });
-      logger2.warn(idbGetError.message);
-    }
-  }
-}
-function computeKey2(app) {
-  return `${app.name}!${app.options.appId}`;
-}
-var MAX_HEADER_BYTES = 1024;
-var MAX_NUM_STORED_HEARTBEATS = 30;
-var HeartbeatServiceImpl = class {
-  constructor(container) {
-    this.container = container;
-    this._heartbeatsCache = null;
-    const app = this.container.getProvider("app").getImmediate();
-    this._storage = new HeartbeatStorageImpl(app);
-    this._heartbeatsCachePromise = this._storage.read().then((result) => {
-      this._heartbeatsCache = result;
-      return result;
-    });
-  }
-  /**
-   * Called to report a heartbeat. The function will generate
-   * a HeartbeatsByUserAgent object, update heartbeatsCache, and persist it
-   * to IndexedDB.
-   * Note that we only store one heartbeat per day. So if a heartbeat for today is
-   * already logged, subsequent calls to this function in the same day will be ignored.
-   */
-  async triggerHeartbeat() {
-    var _a, _b;
-    try {
-      const platformLogger = this.container.getProvider("platform-logger").getImmediate();
-      const agent = platformLogger.getPlatformInfoString();
-      const date = getUTCDateString();
-      if (((_a = this._heartbeatsCache) === null || _a === void 0 ? void 0 : _a.heartbeats) == null) {
-        this._heartbeatsCache = await this._heartbeatsCachePromise;
-        if (((_b = this._heartbeatsCache) === null || _b === void 0 ? void 0 : _b.heartbeats) == null) {
-          return;
-        }
-      }
-      if (this._heartbeatsCache.lastSentHeartbeatDate === date || this._heartbeatsCache.heartbeats.some((singleDateHeartbeat) => singleDateHeartbeat.date === date)) {
-        return;
-      } else {
-        this._heartbeatsCache.heartbeats.push({ date, agent });
-        if (this._heartbeatsCache.heartbeats.length > MAX_NUM_STORED_HEARTBEATS) {
-          const earliestHeartbeatIdx = getEarliestHeartbeatIdx(this._heartbeatsCache.heartbeats);
-          this._heartbeatsCache.heartbeats.splice(earliestHeartbeatIdx, 1);
-        }
-      }
-      return this._storage.overwrite(this._heartbeatsCache);
-    } catch (e) {
-      logger2.warn(e);
-    }
-  }
-  /**
-   * Returns a base64 encoded string which can be attached to the heartbeat-specific header directly.
-   * It also clears all heartbeats from memory as well as in IndexedDB.
-   *
-   * NOTE: Consuming product SDKs should not send the header if this method
-   * returns an empty string.
-   */
-  async getHeartbeatsHeader() {
-    var _a;
-    try {
-      if (this._heartbeatsCache === null) {
-        await this._heartbeatsCachePromise;
-      }
-      if (((_a = this._heartbeatsCache) === null || _a === void 0 ? void 0 : _a.heartbeats) == null || this._heartbeatsCache.heartbeats.length === 0) {
-        return "";
-      }
-      const date = getUTCDateString();
-      const { heartbeatsToSend, unsentEntries } = extractHeartbeatsForHeader(this._heartbeatsCache.heartbeats);
-      const headerString = base64urlEncodeWithoutPadding(JSON.stringify({ version: 2, heartbeats: heartbeatsToSend }));
-      this._heartbeatsCache.lastSentHeartbeatDate = date;
-      if (unsentEntries.length > 0) {
-        this._heartbeatsCache.heartbeats = unsentEntries;
-        await this._storage.overwrite(this._heartbeatsCache);
-      } else {
-        this._heartbeatsCache.heartbeats = [];
-        void this._storage.overwrite(this._heartbeatsCache);
-      }
-      return headerString;
-    } catch (e) {
-      logger2.warn(e);
-      return "";
-    }
-  }
-};
-function getUTCDateString() {
-  const today = /* @__PURE__ */ new Date();
-  return today.toISOString().substring(0, 10);
-}
-function extractHeartbeatsForHeader(heartbeatsCache, maxSize = MAX_HEADER_BYTES) {
-  const heartbeatsToSend = [];
-  let unsentEntries = heartbeatsCache.slice();
-  for (const singleDateHeartbeat of heartbeatsCache) {
-    const heartbeatEntry = heartbeatsToSend.find((hb) => hb.agent === singleDateHeartbeat.agent);
-    if (!heartbeatEntry) {
-      heartbeatsToSend.push({
-        agent: singleDateHeartbeat.agent,
-        dates: [singleDateHeartbeat.date]
-      });
-      if (countBytes(heartbeatsToSend) > maxSize) {
-        heartbeatsToSend.pop();
-        break;
-      }
-    } else {
-      heartbeatEntry.dates.push(singleDateHeartbeat.date);
-      if (countBytes(heartbeatsToSend) > maxSize) {
-        heartbeatEntry.dates.pop();
-        break;
-      }
-    }
-    unsentEntries = unsentEntries.slice(1);
-  }
-  return {
-    heartbeatsToSend,
-    unsentEntries
-  };
-}
-var HeartbeatStorageImpl = class {
-  constructor(app) {
-    this.app = app;
-    this._canUseIndexedDBPromise = this.runIndexedDBEnvironmentCheck();
-  }
-  async runIndexedDBEnvironmentCheck() {
-    if (!isIndexedDBAvailable2()) {
-      return false;
-    } else {
-      return validateIndexedDBOpenable().then(() => true).catch(() => false);
-    }
-  }
-  /**
-   * Read all heartbeats.
-   */
-  async read() {
-    const canUseIndexedDB = await this._canUseIndexedDBPromise;
-    if (!canUseIndexedDB) {
-      return { heartbeats: [] };
-    } else {
-      const idbHeartbeatObject = await readHeartbeatsFromIndexedDB(this.app);
-      if (idbHeartbeatObject === null || idbHeartbeatObject === void 0 ? void 0 : idbHeartbeatObject.heartbeats) {
-        return idbHeartbeatObject;
-      } else {
-        return { heartbeats: [] };
-      }
-    }
-  }
-  // overwrite the storage with the provided heartbeats
-  async overwrite(heartbeatsObject) {
-    var _a;
-    const canUseIndexedDB = await this._canUseIndexedDBPromise;
-    if (!canUseIndexedDB) {
-      return;
-    } else {
-      const existingHeartbeatsObject = await this.read();
-      return writeHeartbeatsToIndexedDB(this.app, {
-        lastSentHeartbeatDate: (_a = heartbeatsObject.lastSentHeartbeatDate) !== null && _a !== void 0 ? _a : existingHeartbeatsObject.lastSentHeartbeatDate,
-        heartbeats: heartbeatsObject.heartbeats
-      });
-    }
-  }
-  // add heartbeats
-  async add(heartbeatsObject) {
-    var _a;
-    const canUseIndexedDB = await this._canUseIndexedDBPromise;
-    if (!canUseIndexedDB) {
-      return;
-    } else {
-      const existingHeartbeatsObject = await this.read();
-      return writeHeartbeatsToIndexedDB(this.app, {
-        lastSentHeartbeatDate: (_a = heartbeatsObject.lastSentHeartbeatDate) !== null && _a !== void 0 ? _a : existingHeartbeatsObject.lastSentHeartbeatDate,
-        heartbeats: [
-          ...existingHeartbeatsObject.heartbeats,
-          ...heartbeatsObject.heartbeats
-        ]
-      });
-    }
-  }
-};
-function countBytes(heartbeatsCache) {
-  return base64urlEncodeWithoutPadding(
-    // heartbeatsCache wrapper properties
-    JSON.stringify({ version: 2, heartbeats: heartbeatsCache })
-  ).length;
-}
-function getEarliestHeartbeatIdx(heartbeats) {
-  if (heartbeats.length === 0) {
-    return -1;
-  }
-  let earliestHeartbeatIdx = 0;
-  let earliestHeartbeatDate = heartbeats[0].date;
-  for (let i = 1; i < heartbeats.length; i++) {
-    if (heartbeats[i].date < earliestHeartbeatDate) {
-      earliestHeartbeatDate = heartbeats[i].date;
-      earliestHeartbeatIdx = i;
-    }
-  }
-  return earliestHeartbeatIdx;
-}
-function registerCoreComponents(variant) {
-  _registerComponent2(new Component2(
-    "platform-logger",
-    (container) => new PlatformLoggerServiceImpl(container),
-    "PRIVATE"
-    /* ComponentType.PRIVATE */
-  ));
-  _registerComponent2(new Component2(
-    "heartbeat",
-    (container) => new HeartbeatServiceImpl(container),
-    "PRIVATE"
-    /* ComponentType.PRIVATE */
-  ));
-  registerVersion2(name$q, version$1, variant);
-  registerVersion2(name$q, version$1, "esm2017");
-  registerVersion2("fire-js", "");
-}
-registerCoreComponents("");
-
-// node_modules/@firebase/auth/dist/esm2017/index-35c79a8a.js
+// node_modules/@firebase/auth/dist/esm2017/index-68602d24.js
 function _prodErrorMap() {
   return {
     [
@@ -2110,7 +2340,7 @@ function _prodErrorMap() {
   };
 }
 var prodErrorMap = _prodErrorMap;
-var _DEFAULT_AUTH_ERROR_FACTORY = new ErrorFactory2("auth", "Firebase", _prodErrorMap());
+var _DEFAULT_AUTH_ERROR_FACTORY = new ErrorFactory3("auth", "Firebase", _prodErrorMap());
 var logClient = new Logger2("@firebase/auth");
 function _logWarn(msg, ...args) {
   if (logClient.logLevel <= LogLevel2.WARN) {
@@ -2130,7 +2360,7 @@ function _createError(authOrCode, ...rest) {
 }
 function _errorWithCustomMessage(auth, code, message) {
   const errorMap = Object.assign(Object.assign({}, prodErrorMap()), { [code]: message });
-  const factory2 = new ErrorFactory2("auth", "Firebase", errorMap);
+  const factory2 = new ErrorFactory3("auth", "Firebase", errorMap);
   return factory2.create(code, {
     appName: auth.name
   });
@@ -2492,15 +2722,6 @@ var SERVER_ERROR_MAP = {
   ]: "invalid-req-type"
   /* AuthErrorCode.INVALID_REQ_TYPE */
 };
-var CookieAuthProxiedEndpoints = [
-  "/v1/accounts:signInWithCustomToken",
-  "/v1/accounts:signInWithEmailLink",
-  "/v1/accounts:signInWithIdp",
-  "/v1/accounts:signInWithPassword",
-  "/v1/accounts:signInWithPhoneNumber",
-  "/v1/token"
-  /* Endpoint.TOKEN */
-];
 var DEFAULT_API_TIMEOUT_MS = new Delay(3e4, 6e4);
 function _addTidIfNecessary(auth, request) {
   if (auth.tenantId && !request.tenantId) {
@@ -2540,10 +2761,7 @@ async function _performApiRequest(auth, method, path, request, customErrorMap = 
     if (!isCloudflareWorker2()) {
       fetchArgs.referrerPolicy = "no-referrer";
     }
-    if (auth.emulatorConfig && isCloudWorkstation2(auth.emulatorConfig.host)) {
-      fetchArgs.credentials = "include";
-    }
-    return FetchProvider.fetch()(await _getFinalTarget(auth, auth.config.apiHost, path, query), fetchArgs);
+    return FetchProvider.fetch()(_getFinalTarget(auth, auth.config.apiHost, path, query), fetchArgs);
   });
 }
 async function _performFetchWithErrorHandling(auth, customErrorMap, fetchFn) {
@@ -2580,7 +2798,7 @@ async function _performFetchWithErrorHandling(auth, customErrorMap, fetchFn) {
       }
     }
   } catch (e) {
-    if (e instanceof FirebaseError2) {
+    if (e instanceof FirebaseError3) {
       throw e;
     }
     _fail(auth, "network-request-failed", { "message": String(e) });
@@ -2595,18 +2813,12 @@ async function _performSignInRequest(auth, method, path, request, customErrorMap
   }
   return serverResponse;
 }
-async function _getFinalTarget(auth, host, path, query) {
+function _getFinalTarget(auth, host, path, query) {
   const base = `${host}${path}?${query}`;
-  const authInternal = auth;
-  const finalTarget = authInternal.config.emulator ? _emulatorUrl(auth.config, base) : `${auth.config.apiScheme}://${base}`;
-  if (CookieAuthProxiedEndpoints.includes(path)) {
-    await authInternal._persistenceManagerAvailable;
-    if (authInternal._getPersistenceType() === "COOKIE") {
-      const cookiePersistence = authInternal._getPersistence();
-      return cookiePersistence._getFinalTarget(finalTarget).toString();
-    }
+  if (!auth.config.emulator) {
+    return `${auth.config.apiScheme}://${base}`;
   }
-  return finalTarget;
+  return _emulatorUrl(auth.config, base);
 }
 function _parseEnforcementState(enforcementStateStr) {
   switch (enforcementStateStr) {
@@ -2621,9 +2833,6 @@ function _parseEnforcementState(enforcementStateStr) {
   }
 }
 var NetworkTimeout = class {
-  clearNetworkTimeout() {
-    clearTimeout(this.timer);
-  }
   constructor(auth) {
     this.auth = auth;
     this.timer = null;
@@ -2636,6 +2845,9 @@ var NetworkTimeout = class {
         ));
       }, DEFAULT_API_TIMEOUT_MS.get());
     });
+  }
+  clearNetworkTimeout() {
+    clearTimeout(this.timer);
   }
 };
 function _makeTaggedError(auth, code, response) {
@@ -2690,21 +2902,6 @@ var RecaptchaConfig = class {
    */
   isProviderEnabled(providerStr) {
     return this.getProviderEnforcementState(providerStr) === "ENFORCE" || this.getProviderEnforcementState(providerStr) === "AUDIT";
-  }
-  /**
-   * Returns true if reCAPTCHA Enterprise protection is enabled in at least one provider, otherwise
-   * returns false.
-   *
-   * @returns Whether or not reCAPTCHA Enterprise protection is enabled for at least one provider.
-   */
-  isAnyProviderEnabled() {
-    return this.isProviderEnabled(
-      "EMAIL_PASSWORD_PROVIDER"
-      /* RecaptchaAuthProvider.EMAIL_PASSWORD_PROVIDER */
-    ) || this.isProviderEnabled(
-      "PHONE_PROVIDER"
-      /* RecaptchaAuthProvider.PHONE_PROVIDER */
-    );
   }
 };
 async function getRecaptchaConfig(auth, request) {
@@ -2801,7 +2998,7 @@ async function _logoutIfInvalidated(user3, promise, bypassAuthState = false) {
   try {
     return await promise;
   } catch (e) {
-    if (e instanceof FirebaseError2 && isUserInvalidated(e)) {
+    if (e instanceof FirebaseError3 && isUserInvalidated(e)) {
       if (user3.auth.currentUser === user3) {
         await user3.auth.signOut();
       }
@@ -2960,21 +3157,17 @@ async function requestStsToken(auth, refreshToken) {
       "refresh_token": refreshToken
     }).slice(1);
     const { tokenApiHost, apiKey } = auth.config;
-    const url = await _getFinalTarget(auth, tokenApiHost, "/v1/token", `key=${apiKey}`);
+    const url = _getFinalTarget(auth, tokenApiHost, "/v1/token", `key=${apiKey}`);
     const headers = await auth._getAdditionalHeaders();
     headers[
       "Content-Type"
       /* HttpHeader.CONTENT_TYPE */
     ] = "application/x-www-form-urlencoded";
-    const options = {
+    return FetchProvider.fetch()(url, {
       method: "POST",
       headers,
       body
-    };
-    if (auth.emulatorConfig && isCloudWorkstation2(auth.emulatorConfig.host)) {
-      options.credentials = "include";
-    }
-    return FetchProvider.fetch()(url, options);
+    });
   });
   return {
     accessToken: response.access_token,
@@ -3415,17 +3608,7 @@ var PersistenceUserManager = class _PersistenceUserManager {
   }
   async getCurrentUser() {
     const blob = await this.persistence._get(this.fullUserKey);
-    if (!blob) {
-      return null;
-    }
-    if (typeof blob === "string") {
-      const response = await getAccountInfo(this.auth, { idToken: blob }).catch(() => void 0);
-      if (!response) {
-        return null;
-      }
-      return UserImpl._fromGetAccountInfoResponse(this.auth, response, blob);
-    }
-    return UserImpl._fromJSON(this.auth, blob);
+    return blob ? UserImpl._fromJSON(this.auth, blob) : null;
   }
   removeCurrentUser() {
     return this.persistence._remove(this.fullUserKey);
@@ -3464,18 +3647,7 @@ var PersistenceUserManager = class _PersistenceUserManager {
       try {
         const blob = await persistence._get(key);
         if (blob) {
-          let user3;
-          if (typeof blob === "string") {
-            const response = await getAccountInfo(auth, {
-              idToken: blob
-            }).catch(() => void 0);
-            if (!response) {
-              break;
-            }
-            user3 = await UserImpl._fromGetAccountInfoResponse(auth, response, blob);
-          } else {
-            user3 = UserImpl._fromJSON(auth, blob);
-          }
+          const user3 = UserImpl._fromJSON(auth, blob);
           if (persistence !== selectedPersistence) {
             userToMigrate = user3;
           }
@@ -3780,7 +3952,6 @@ var AuthImpl = class {
     this._tenantRecaptchaConfigs = {};
     this._projectPasswordPolicy = null;
     this._tenantPasswordPolicies = {};
-    this._resolvePersistenceManagerAvailable = void 0;
     this.lastNotifiedUid = void 0;
     this.languageCode = null;
     this.tenantId = null;
@@ -3788,30 +3959,28 @@ var AuthImpl = class {
     this.frameworks = [];
     this.name = app.name;
     this.clientVersion = config.sdkClientVersion;
-    this._persistenceManagerAvailable = new Promise((resolve) => this._resolvePersistenceManagerAvailable = resolve);
   }
   _initializeWithPersistence(persistenceHierarchy, popupRedirectResolver) {
     if (popupRedirectResolver) {
       this._popupRedirectResolver = _getInstance(popupRedirectResolver);
     }
     this._initializationPromise = this.queue(async () => {
-      var _a, _b, _c;
+      var _a, _b;
       if (this._deleted) {
         return;
       }
       this.persistenceManager = await PersistenceUserManager.create(this, persistenceHierarchy);
-      (_a = this._resolvePersistenceManagerAvailable) === null || _a === void 0 ? void 0 : _a.call(this);
       if (this._deleted) {
         return;
       }
-      if ((_b = this._popupRedirectResolver) === null || _b === void 0 ? void 0 : _b._shouldInitProactively) {
+      if ((_a = this._popupRedirectResolver) === null || _a === void 0 ? void 0 : _a._shouldInitProactively) {
         try {
           await this._popupRedirectResolver._initialize(this);
         } catch (e) {
         }
       }
       await this.initializeCurrentUser(popupRedirectResolver);
-      this.lastNotifiedUid = ((_c = this.currentUser) === null || _c === void 0 ? void 0 : _c.uid) || null;
+      this.lastNotifiedUid = ((_b = this.currentUser) === null || _b === void 0 ? void 0 : _b.uid) || null;
       if (this._deleted) {
         return;
       }
@@ -4021,14 +4190,11 @@ var AuthImpl = class {
       this._tenantPasswordPolicies[this.tenantId] = passwordPolicy;
     }
   }
-  _getPersistenceType() {
+  _getPersistence() {
     return this.assertedPersistence.persistence.type;
   }
-  _getPersistence() {
-    return this.assertedPersistence.persistence;
-  }
   _updateErrorMap(errorMap) {
-    this._errorFactory = new ErrorFactory2("auth", "Firebase", errorMap());
+    this._errorFactory = new ErrorFactory3("auth", "Firebase", errorMap());
   }
   onAuthStateChanged(nextOrObserver, error, completed) {
     return this.registerStateListener(this.authStateSubscription, nextOrObserver, error, completed);
@@ -4268,9 +4434,6 @@ var AuthImpl = class {
   }
   async _getAppCheckToken() {
     var _a;
-    if (_isFirebaseServerApp2(this.app) && this.app.settings.appCheckToken) {
-      return this.app.settings.appCheckToken;
-    }
     const appCheckTokenResult = await ((_a = this.appCheckServiceProvider.getImmediate({ optional: true })) === null || _a === void 0 ? void 0 : _a.getToken());
     if (appCheckTokenResult === null || appCheckTokenResult === void 0 ? void 0 : appCheckTokenResult.error) {
       _logWarn(`Error while retrieving App Check token: ${appCheckTokenResult.error}`);
@@ -4317,31 +4480,6 @@ function _recaptchaEnterpriseScriptUrl() {
 function _generateCallbackName(prefix) {
   return `__${prefix}${Math.floor(Math.random() * 1e6)}`;
 }
-var MockGreCAPTCHATopLevel = class {
-  constructor() {
-    this.enterprise = new MockGreCAPTCHA();
-  }
-  ready(callback) {
-    callback();
-  }
-  execute(_siteKey, _options) {
-    return Promise.resolve("token");
-  }
-  render(_container, _parameters) {
-    return "";
-  }
-};
-var MockGreCAPTCHA = class {
-  ready(callback) {
-    callback();
-  }
-  execute(_siteKey, _options) {
-    return Promise.resolve("token");
-  }
-  render(_container, _parameters) {
-    return "";
-  }
-};
 var RECAPTCHA_ENTERPRISE_VERIFIER_TYPE = "recaptcha-enterprise";
 var FAKE_TOKEN = "NO_RECAPTCHA";
 var RecaptchaEnterpriseVerifier = class {
@@ -4405,10 +4543,6 @@ var RecaptchaEnterpriseVerifier = class {
         reject(Error("No reCAPTCHA enterprise script loaded."));
       }
     }
-    if (this.auth.settings.appVerificationDisabledForTesting) {
-      const mockRecaptcha = new MockGreCAPTCHATopLevel();
-      return mockRecaptcha.execute("siteKey", { action: "verify" });
-    }
     return new Promise((resolve, reject) => {
       retrieveSiteKey(this.auth).then((siteKey) => {
         if (!forceRefresh && isEnterprise(window.grecaptcha)) {
@@ -4434,48 +4568,16 @@ var RecaptchaEnterpriseVerifier = class {
     });
   }
 };
-async function injectRecaptchaFields(auth, request, action, isCaptchaResp = false, isFakeToken = false) {
+async function injectRecaptchaFields(auth, request, action, captchaResp = false) {
   const verifier = new RecaptchaEnterpriseVerifier(auth);
   let captchaResponse;
-  if (isFakeToken) {
-    captchaResponse = FAKE_TOKEN;
-  } else {
-    try {
-      captchaResponse = await verifier.verify(action);
-    } catch (error) {
-      captchaResponse = await verifier.verify(action, true);
-    }
+  try {
+    captchaResponse = await verifier.verify(action);
+  } catch (error) {
+    captchaResponse = await verifier.verify(action, true);
   }
   const newRequest = Object.assign({}, request);
-  if (action === "mfaSmsEnrollment" || action === "mfaSmsSignIn") {
-    if ("phoneEnrollmentInfo" in newRequest) {
-      const phoneNumber = newRequest.phoneEnrollmentInfo.phoneNumber;
-      const recaptchaToken = newRequest.phoneEnrollmentInfo.recaptchaToken;
-      Object.assign(newRequest, {
-        "phoneEnrollmentInfo": {
-          phoneNumber,
-          recaptchaToken,
-          captchaResponse,
-          "clientType": "CLIENT_TYPE_WEB",
-          "recaptchaVersion": "RECAPTCHA_ENTERPRISE"
-          /* RecaptchaVersion.ENTERPRISE */
-        }
-      });
-    } else if ("phoneSignInInfo" in newRequest) {
-      const recaptchaToken = newRequest.phoneSignInInfo.recaptchaToken;
-      Object.assign(newRequest, {
-        "phoneSignInInfo": {
-          recaptchaToken,
-          captchaResponse,
-          "clientType": "CLIENT_TYPE_WEB",
-          "recaptchaVersion": "RECAPTCHA_ENTERPRISE"
-          /* RecaptchaVersion.ENTERPRISE */
-        }
-      });
-    }
-    return newRequest;
-  }
-  if (!isCaptchaResp) {
+  if (!captchaResp) {
     Object.assign(newRequest, { captchaResponse });
   } else {
     Object.assign(newRequest, { "captchaResp": captchaResponse });
@@ -4490,98 +4592,36 @@ async function injectRecaptchaFields(auth, request, action, isCaptchaResp = fals
   });
   return newRequest;
 }
-async function handleRecaptchaFlow(authInstance, request, actionName, actionMethod, recaptchaAuthProvider) {
-  var _a, _b;
-  if (recaptchaAuthProvider === "EMAIL_PASSWORD_PROVIDER") {
-    if ((_a = authInstance._getRecaptchaConfig()) === null || _a === void 0 ? void 0 : _a.isProviderEnabled(
-      "EMAIL_PASSWORD_PROVIDER"
-      /* RecaptchaAuthProvider.EMAIL_PASSWORD_PROVIDER */
-    )) {
-      const requestWithRecaptcha = await injectRecaptchaFields(
-        authInstance,
-        request,
-        actionName,
-        actionName === "getOobCode"
-        /* RecaptchaActionName.GET_OOB_CODE */
-      );
-      return actionMethod(authInstance, requestWithRecaptcha);
-    } else {
-      return actionMethod(authInstance, request).catch(async (error) => {
-        if (error.code === `auth/${"missing-recaptcha-token"}`) {
-          console.log(`${actionName} is protected by reCAPTCHA Enterprise for this project. Automatically triggering the reCAPTCHA flow and restarting the flow.`);
-          const requestWithRecaptcha = await injectRecaptchaFields(
-            authInstance,
-            request,
-            actionName,
-            actionName === "getOobCode"
-            /* RecaptchaActionName.GET_OOB_CODE */
-          );
-          return actionMethod(authInstance, requestWithRecaptcha);
-        } else {
-          return Promise.reject(error);
-        }
-      });
-    }
-  } else if (recaptchaAuthProvider === "PHONE_PROVIDER") {
-    if ((_b = authInstance._getRecaptchaConfig()) === null || _b === void 0 ? void 0 : _b.isProviderEnabled(
-      "PHONE_PROVIDER"
-      /* RecaptchaAuthProvider.PHONE_PROVIDER */
-    )) {
-      const requestWithRecaptcha = await injectRecaptchaFields(authInstance, request, actionName);
-      return actionMethod(authInstance, requestWithRecaptcha).catch(async (error) => {
-        var _a2;
-        if (((_a2 = authInstance._getRecaptchaConfig()) === null || _a2 === void 0 ? void 0 : _a2.getProviderEnforcementState(
-          "PHONE_PROVIDER"
-          /* RecaptchaAuthProvider.PHONE_PROVIDER */
-        )) === "AUDIT") {
-          if (error.code === `auth/${"missing-recaptcha-token"}` || error.code === `auth/${"invalid-app-credential"}`) {
-            console.log(`Failed to verify with reCAPTCHA Enterprise. Automatically triggering the reCAPTCHA v2 flow to complete the ${actionName} flow.`);
-            const requestWithRecaptchaFields = await injectRecaptchaFields(
-              authInstance,
-              request,
-              actionName,
-              false,
-              // isCaptchaResp
-              true
-              // isFakeToken
-            );
-            return actionMethod(authInstance, requestWithRecaptchaFields);
-          }
-        }
+async function handleRecaptchaFlow(authInstance, request, actionName, actionMethod) {
+  var _a;
+  if ((_a = authInstance._getRecaptchaConfig()) === null || _a === void 0 ? void 0 : _a.isProviderEnabled(
+    "EMAIL_PASSWORD_PROVIDER"
+    /* RecaptchaProvider.EMAIL_PASSWORD_PROVIDER */
+  )) {
+    const requestWithRecaptcha = await injectRecaptchaFields(
+      authInstance,
+      request,
+      actionName,
+      actionName === "getOobCode"
+      /* RecaptchaActionName.GET_OOB_CODE */
+    );
+    return actionMethod(authInstance, requestWithRecaptcha);
+  } else {
+    return actionMethod(authInstance, request).catch(async (error) => {
+      if (error.code === `auth/${"missing-recaptcha-token"}`) {
+        console.log(`${actionName} is protected by reCAPTCHA Enterprise for this project. Automatically triggering the reCAPTCHA flow and restarting the flow.`);
+        const requestWithRecaptcha = await injectRecaptchaFields(
+          authInstance,
+          request,
+          actionName,
+          actionName === "getOobCode"
+          /* RecaptchaActionName.GET_OOB_CODE */
+        );
+        return actionMethod(authInstance, requestWithRecaptcha);
+      } else {
         return Promise.reject(error);
-      });
-    } else {
-      const requestWithRecaptchaFields = await injectRecaptchaFields(
-        authInstance,
-        request,
-        actionName,
-        false,
-        // isCaptchaResp
-        true
-        // isFakeToken
-      );
-      return actionMethod(authInstance, requestWithRecaptchaFields);
-    }
-  } else {
-    return Promise.reject(recaptchaAuthProvider + " provider is not supported.");
-  }
-}
-async function _initializeRecaptchaConfig(auth) {
-  const authInternal = _castAuth(auth);
-  const response = await getRecaptchaConfig(authInternal, {
-    clientType: "CLIENT_TYPE_WEB",
-    version: "RECAPTCHA_ENTERPRISE"
-    /* RecaptchaVersion.ENTERPRISE */
-  });
-  const config = new RecaptchaConfig(response);
-  if (authInternal.tenantId == null) {
-    authInternal._agentRecaptchaConfig = config;
-  } else {
-    authInternal._tenantRecaptchaConfigs[authInternal.tenantId] = config;
-  }
-  if (config.isAnyProviderEnabled()) {
-    const verifier = new RecaptchaEnterpriseVerifier(authInternal);
-    void verifier.verify();
+      }
+    });
   }
 }
 function _initializeAuthInstance(auth, deps) {
@@ -4691,14 +4731,7 @@ var EmailAuthCredential = class _EmailAuthCredential extends AuthCredential {
           clientType: "CLIENT_TYPE_WEB"
           /* RecaptchaClientType.WEB */
         };
-        return handleRecaptchaFlow(
-          auth,
-          request,
-          "signInWithPassword",
-          signInWithPassword,
-          "EMAIL_PASSWORD_PROVIDER"
-          /* RecaptchaAuthProvider.EMAIL_PASSWORD_PROVIDER */
-        );
+        return handleRecaptchaFlow(auth, request, "signInWithPassword", signInWithPassword);
       case "emailLink":
         return signInWithEmailLink$1(auth, {
           email: this._email,
@@ -4724,14 +4757,7 @@ var EmailAuthCredential = class _EmailAuthCredential extends AuthCredential {
           clientType: "CLIENT_TYPE_WEB"
           /* RecaptchaClientType.WEB */
         };
-        return handleRecaptchaFlow(
-          auth,
-          request,
-          "signUpPassword",
-          linkEmailPassword,
-          "EMAIL_PASSWORD_PROVIDER"
-          /* RecaptchaAuthProvider.EMAIL_PASSWORD_PROVIDER */
-        );
+        return handleRecaptchaFlow(auth, request, "signUpPassword", linkEmailPassword);
       case "emailLink":
         return signInWithEmailLinkForLinking(auth, {
           idToken: idToken3,
@@ -5026,7 +5052,7 @@ var ActionCodeURL = class _ActionCodeURL {
       /* QueryField.CONTINUE_URL */
     ]) !== null && _d !== void 0 ? _d : null;
     this.languageCode = (_e = searchParams[
-      "lang"
+      "languageCode"
       /* QueryField.LANGUAGE_CODE */
     ]) !== null && _e !== void 0 ? _e : null;
     this.tenantId = (_f = searchParams[
@@ -5446,7 +5472,7 @@ function providerIdForResponse(response) {
   }
   return null;
 }
-var MultiFactorError = class _MultiFactorError extends FirebaseError2 {
+var MultiFactorError = class _MultiFactorError extends FirebaseError3 {
   constructor(auth, error, operationType, user3) {
     var _a;
     super(error.code, error.message);
@@ -5712,115 +5738,6 @@ var BrowserLocalPersistence = class extends BrowserPersistenceClass {
   }
 };
 BrowserLocalPersistence.type = "LOCAL";
-var POLLING_INTERVAL_MS = 1e3;
-function getDocumentCookie(name5) {
-  var _a, _b;
-  const escapedName = name5.replace(/[\\^$.*+?()[\]{}|]/g, "\\$&");
-  const matcher = RegExp(`${escapedName}=([^;]+)`);
-  return (_b = (_a = document.cookie.match(matcher)) === null || _a === void 0 ? void 0 : _a[1]) !== null && _b !== void 0 ? _b : null;
-}
-function getCookieName(key) {
-  const isDevMode2 = window.location.protocol === "http:";
-  return `${isDevMode2 ? "__dev_" : "__HOST-"}FIREBASE_${key.split(":")[3]}`;
-}
-var CookiePersistence = class {
-  constructor() {
-    this.type = "COOKIE";
-    this.listenerUnsubscribes = /* @__PURE__ */ new Map();
-  }
-  // used to get the URL to the backend to proxy to
-  _getFinalTarget(originalUrl) {
-    if (typeof window === void 0) {
-      return originalUrl;
-    }
-    const url = new URL(`${window.location.origin}/__cookies__`);
-    url.searchParams.set("finalTarget", originalUrl);
-    return url;
-  }
-  // To be a usable persistence method in a chain browserCookiePersistence ensures that
-  // prerequisites have been met, namely that we're in a secureContext, navigator and document are
-  // available and cookies are enabled. Not all UAs support these method, so fallback accordingly.
-  async _isAvailable() {
-    var _a;
-    if (typeof isSecureContext === "boolean" && !isSecureContext) {
-      return false;
-    }
-    if (typeof navigator === "undefined" || typeof document === "undefined") {
-      return false;
-    }
-    return (_a = navigator.cookieEnabled) !== null && _a !== void 0 ? _a : true;
-  }
-  // Set should be a noop as we expect middleware to handle this
-  async _set(_key, _value) {
-    return;
-  }
-  // Attempt to get the cookie from cookieStore, fallback to document.cookie
-  async _get(key) {
-    if (!this._isAvailable()) {
-      return null;
-    }
-    const name5 = getCookieName(key);
-    if (window.cookieStore) {
-      const cookie = await window.cookieStore.get(name5);
-      return cookie === null || cookie === void 0 ? void 0 : cookie.value;
-    }
-    return getDocumentCookie(name5);
-  }
-  // Log out by overriding the idToken with a sentinel value of ""
-  async _remove(key) {
-    if (!this._isAvailable()) {
-      return;
-    }
-    const existingValue = await this._get(key);
-    if (!existingValue) {
-      return;
-    }
-    const name5 = getCookieName(key);
-    document.cookie = `${name5}=;Max-Age=34560000;Partitioned;Secure;SameSite=Strict;Path=/;Priority=High`;
-    await fetch(`/__cookies__`, { method: "DELETE" }).catch(() => void 0);
-  }
-  // Listen for cookie changes, both cookieStore and fallback to polling document.cookie
-  _addListener(key, listener) {
-    if (!this._isAvailable()) {
-      return;
-    }
-    const name5 = getCookieName(key);
-    if (window.cookieStore) {
-      const cb = ((event) => {
-        const changedCookie = event.changed.find((change) => change.name === name5);
-        if (changedCookie) {
-          listener(changedCookie.value);
-        }
-        const deletedCookie = event.deleted.find((change) => change.name === name5);
-        if (deletedCookie) {
-          listener(null);
-        }
-      });
-      const unsubscribe2 = () => window.cookieStore.removeEventListener("change", cb);
-      this.listenerUnsubscribes.set(listener, unsubscribe2);
-      return window.cookieStore.addEventListener("change", cb);
-    }
-    let lastValue = getDocumentCookie(name5);
-    const interval = setInterval(() => {
-      const currentValue = getDocumentCookie(name5);
-      if (currentValue !== lastValue) {
-        listener(currentValue);
-        lastValue = currentValue;
-      }
-    }, POLLING_INTERVAL_MS);
-    const unsubscribe = () => clearInterval(interval);
-    this.listenerUnsubscribes.set(listener, unsubscribe);
-  }
-  _removeListener(_key, listener) {
-    const unsubscribe = this.listenerUnsubscribes.get(listener);
-    if (!unsubscribe) {
-      return;
-    }
-    unsubscribe();
-    this.listenerUnsubscribes.delete(listener);
-  }
-};
-CookiePersistence.type = "COOKIE";
 var BrowserSessionPersistence = class extends BrowserPersistenceClass {
   constructor() {
     super(
@@ -6389,14 +6306,20 @@ var NETWORK_TIMEOUT_DELAY = new Delay(3e4, 6e4);
 var RECAPTCHA_VERIFIER_TYPE = "recaptcha";
 async function _verifyPhoneNumber(auth, options, verifier) {
   var _a;
-  if (!auth._getRecaptchaConfig()) {
-    try {
-      await _initializeRecaptchaConfig(auth);
-    } catch (error) {
-      console.log("Failed to initialize reCAPTCHA Enterprise config. Triggering the reCAPTCHA v2 verification.");
-    }
-  }
+  const recaptchaToken = await verifier.verify();
   try {
+    _assert(
+      typeof recaptchaToken === "string",
+      auth,
+      "argument-error"
+      /* AuthErrorCode.ARGUMENT_ERROR */
+    );
+    _assert(
+      verifier.type === RECAPTCHA_VERIFIER_TYPE,
+      auth,
+      "argument-error"
+      /* AuthErrorCode.ARGUMENT_ERROR */
+    );
     let phoneInfoOptions;
     if (typeof options === "string") {
       phoneInfoOptions = {
@@ -6414,37 +6337,12 @@ async function _verifyPhoneNumber(auth, options, verifier) {
           "internal-error"
           /* AuthErrorCode.INTERNAL_ERROR */
         );
-        const startPhoneMfaEnrollmentRequest = {
+        const response = await startEnrollPhoneMfa(auth, {
           idToken: session.credential,
           phoneEnrollmentInfo: {
             phoneNumber: phoneInfoOptions.phoneNumber,
-            clientType: "CLIENT_TYPE_WEB"
-            /* RecaptchaClientType.WEB */
+            recaptchaToken
           }
-        };
-        const startEnrollPhoneMfaActionCallback = async (authInstance, request) => {
-          if (request.phoneEnrollmentInfo.captchaResponse === FAKE_TOKEN) {
-            _assert(
-              (verifier === null || verifier === void 0 ? void 0 : verifier.type) === RECAPTCHA_VERIFIER_TYPE,
-              authInstance,
-              "argument-error"
-              /* AuthErrorCode.ARGUMENT_ERROR */
-            );
-            const requestWithRecaptchaV2 = await injectRecaptchaV2Token(authInstance, request, verifier);
-            return startEnrollPhoneMfa(authInstance, requestWithRecaptchaV2);
-          }
-          return startEnrollPhoneMfa(authInstance, request);
-        };
-        const startPhoneMfaEnrollmentResponse = handleRecaptchaFlow(
-          auth,
-          startPhoneMfaEnrollmentRequest,
-          "mfaSmsEnrollment",
-          startEnrollPhoneMfaActionCallback,
-          "PHONE_PROVIDER"
-          /* RecaptchaAuthProvider.PHONE_PROVIDER */
-        );
-        const response = await startPhoneMfaEnrollmentResponse.catch((error) => {
-          return Promise.reject(error);
         });
         return response.phoneSessionInfo.sessionInfo;
       } else {
@@ -6461,122 +6359,24 @@ async function _verifyPhoneNumber(auth, options, verifier) {
           "missing-multi-factor-info"
           /* AuthErrorCode.MISSING_MFA_INFO */
         );
-        const startPhoneMfaSignInRequest = {
+        const response = await startSignInPhoneMfa(auth, {
           mfaPendingCredential: session.credential,
           mfaEnrollmentId,
           phoneSignInInfo: {
-            clientType: "CLIENT_TYPE_WEB"
-            /* RecaptchaClientType.WEB */
+            recaptchaToken
           }
-        };
-        const startSignInPhoneMfaActionCallback = async (authInstance, request) => {
-          if (request.phoneSignInInfo.captchaResponse === FAKE_TOKEN) {
-            _assert(
-              (verifier === null || verifier === void 0 ? void 0 : verifier.type) === RECAPTCHA_VERIFIER_TYPE,
-              authInstance,
-              "argument-error"
-              /* AuthErrorCode.ARGUMENT_ERROR */
-            );
-            const requestWithRecaptchaV2 = await injectRecaptchaV2Token(authInstance, request, verifier);
-            return startSignInPhoneMfa(authInstance, requestWithRecaptchaV2);
-          }
-          return startSignInPhoneMfa(authInstance, request);
-        };
-        const startPhoneMfaSignInResponse = handleRecaptchaFlow(
-          auth,
-          startPhoneMfaSignInRequest,
-          "mfaSmsSignIn",
-          startSignInPhoneMfaActionCallback,
-          "PHONE_PROVIDER"
-          /* RecaptchaAuthProvider.PHONE_PROVIDER */
-        );
-        const response = await startPhoneMfaSignInResponse.catch((error) => {
-          return Promise.reject(error);
         });
         return response.phoneResponseInfo.sessionInfo;
       }
     } else {
-      const sendPhoneVerificationCodeRequest = {
+      const { sessionInfo } = await sendPhoneVerificationCode(auth, {
         phoneNumber: phoneInfoOptions.phoneNumber,
-        clientType: "CLIENT_TYPE_WEB"
-        /* RecaptchaClientType.WEB */
-      };
-      const sendPhoneVerificationCodeActionCallback = async (authInstance, request) => {
-        if (request.captchaResponse === FAKE_TOKEN) {
-          _assert(
-            (verifier === null || verifier === void 0 ? void 0 : verifier.type) === RECAPTCHA_VERIFIER_TYPE,
-            authInstance,
-            "argument-error"
-            /* AuthErrorCode.ARGUMENT_ERROR */
-          );
-          const requestWithRecaptchaV2 = await injectRecaptchaV2Token(authInstance, request, verifier);
-          return sendPhoneVerificationCode(authInstance, requestWithRecaptchaV2);
-        }
-        return sendPhoneVerificationCode(authInstance, request);
-      };
-      const sendPhoneVerificationCodeResponse = handleRecaptchaFlow(
-        auth,
-        sendPhoneVerificationCodeRequest,
-        "sendVerificationCode",
-        sendPhoneVerificationCodeActionCallback,
-        "PHONE_PROVIDER"
-        /* RecaptchaAuthProvider.PHONE_PROVIDER */
-      );
-      const response = await sendPhoneVerificationCodeResponse.catch((error) => {
-        return Promise.reject(error);
+        recaptchaToken
       });
-      return response.sessionInfo;
+      return sessionInfo;
     }
   } finally {
-    verifier === null || verifier === void 0 ? void 0 : verifier._reset();
-  }
-}
-async function injectRecaptchaV2Token(auth, request, recaptchaV2Verifier) {
-  _assert(
-    recaptchaV2Verifier.type === RECAPTCHA_VERIFIER_TYPE,
-    auth,
-    "argument-error"
-    /* AuthErrorCode.ARGUMENT_ERROR */
-  );
-  const recaptchaV2Token = await recaptchaV2Verifier.verify();
-  _assert(
-    typeof recaptchaV2Token === "string",
-    auth,
-    "argument-error"
-    /* AuthErrorCode.ARGUMENT_ERROR */
-  );
-  const newRequest = Object.assign({}, request);
-  if ("phoneEnrollmentInfo" in newRequest) {
-    const phoneNumber = newRequest.phoneEnrollmentInfo.phoneNumber;
-    const captchaResponse = newRequest.phoneEnrollmentInfo.captchaResponse;
-    const clientType = newRequest.phoneEnrollmentInfo.clientType;
-    const recaptchaVersion = newRequest.phoneEnrollmentInfo.recaptchaVersion;
-    Object.assign(newRequest, {
-      "phoneEnrollmentInfo": {
-        phoneNumber,
-        recaptchaToken: recaptchaV2Token,
-        captchaResponse,
-        clientType,
-        recaptchaVersion
-      }
-    });
-    return newRequest;
-  } else if ("phoneSignInInfo" in newRequest) {
-    const captchaResponse = newRequest.phoneSignInInfo.captchaResponse;
-    const clientType = newRequest.phoneSignInInfo.clientType;
-    const recaptchaVersion = newRequest.phoneSignInInfo.recaptchaVersion;
-    Object.assign(newRequest, {
-      "phoneSignInInfo": {
-        recaptchaToken: recaptchaV2Token,
-        captchaResponse,
-        clientType,
-        recaptchaVersion
-      }
-    });
-    return newRequest;
-  } else {
-    Object.assign(newRequest, { "recaptchaToken": recaptchaV2Token });
-    return newRequest;
+    verifier._reset();
   }
 }
 var PhoneAuthProvider = class _PhoneAuthProvider {
@@ -6612,14 +6412,12 @@ var PhoneAuthProvider = class _PhoneAuthProvider {
    *
    * @param phoneInfoOptions - The user's {@link PhoneInfoOptions}. The phone number should be in
    * E.164 format (e.g. +16505550101).
-   * @param applicationVerifier - An {@link ApplicationVerifier}, which prevents
-   * requests from unauthorized clients. This SDK includes an implementation
-   * based on reCAPTCHA v2, {@link RecaptchaVerifier}. If you've enabled
-   * reCAPTCHA Enterprise bot protection in Enforce mode, this parameter is
-   * optional; in all other configurations, the parameter is required.
+   * @param applicationVerifier - For abuse prevention, this method also requires a
+   * {@link ApplicationVerifier}. This SDK includes a reCAPTCHA-based implementation,
+   * {@link RecaptchaVerifier}.
    *
    * @returns A Promise for a verification ID that can be passed to
-   * {@link PhoneAuthProvider.credential} to identify this flow.
+   * {@link PhoneAuthProvider.credential} to identify this flow..
    */
   verifyPhoneNumber(phoneOptions, applicationVerifier) {
     return _verifyPhoneNumber(this.auth, phoneOptions, getModularInstance2(applicationVerifier));
@@ -7157,7 +6955,7 @@ function _isEmptyString(input) {
   return typeof input === "undefined" || (input === null || input === void 0 ? void 0 : input.length) === 0;
 }
 var name3 = "@firebase/auth";
-var version3 = "1.10.8";
+var version3 = "1.7.9";
 var AuthInterop = class {
   constructor(auth) {
     this.auth = auth;
@@ -8345,7 +8143,7 @@ var SERVER_ERROR_MAP2 = {
   ]: "invalid-req-type"
   /* AuthErrorCode.INVALID_REQ_TYPE */
 };
-var CookieAuthProxiedEndpoints2 = [
+var CookieAuthProxiedEndpoints = [
   "/v1/accounts:signInWithCustomToken",
   "/v1/accounts:signInWithEmailLink",
   "/v1/accounts:signInWithIdp",
@@ -8456,7 +8254,7 @@ async function _getFinalTarget2(auth, host, path, query) {
   const base = `${host}${path}?${query}`;
   const authInternal = auth;
   const finalTarget = authInternal.config.emulator ? _emulatorUrl2(auth.config, base) : `${auth.config.apiScheme}://${base}`;
-  if (CookieAuthProxiedEndpoints2.includes(path)) {
+  if (CookieAuthProxiedEndpoints.includes(path)) {
     await authInternal._persistenceManagerAvailable;
     if (authInternal._getPersistenceType() === "COOKIE") {
       const cookiePersistence = authInternal._getPersistence();
@@ -10220,9 +10018,9 @@ var MockReCaptcha = class {
     return "";
   }
 };
-var MockGreCAPTCHATopLevel2 = class {
+var MockGreCAPTCHATopLevel = class {
   constructor() {
-    this.enterprise = new MockGreCAPTCHA2();
+    this.enterprise = new MockGreCAPTCHA();
   }
   ready(callback) {
     callback();
@@ -10234,7 +10032,7 @@ var MockGreCAPTCHATopLevel2 = class {
     return "";
   }
 };
-var MockGreCAPTCHA2 = class {
+var MockGreCAPTCHA = class {
   ready(callback) {
     callback();
   }
@@ -10384,7 +10182,7 @@ var RecaptchaEnterpriseVerifier2 = class {
       }
     }
     if (this.auth.settings.appVerificationDisabledForTesting) {
-      const mockRecaptcha = new MockGreCAPTCHATopLevel2();
+      const mockRecaptcha = new MockGreCAPTCHATopLevel();
       return mockRecaptcha.execute("siteKey", { action: "verify" });
     }
     return new Promise((resolve, reject) => {
@@ -10542,7 +10340,7 @@ async function handleRecaptchaFlow2(authInstance, request, actionName, actionMet
     return Promise.reject(recaptchaAuthProvider + " provider is not supported.");
   }
 }
-async function _initializeRecaptchaConfig2(auth) {
+async function _initializeRecaptchaConfig(auth) {
   const authInternal = _castAuth2(auth);
   const response = await getRecaptchaConfig2(authInternal, {
     clientType: "CLIENT_TYPE_WEB",
@@ -12403,7 +12201,7 @@ function setPersistence2(auth, persistence) {
   return getModularInstance(auth).setPersistence(persistence);
 }
 function initializeRecaptchaConfig2(auth) {
-  return _initializeRecaptchaConfig2(auth);
+  return _initializeRecaptchaConfig(auth);
 }
 async function validatePassword2(auth, password) {
   const authInternal = _castAuth2(auth);
@@ -12763,17 +12561,17 @@ var BrowserLocalPersistence2 = class extends BrowserPersistenceClass2 {
 };
 BrowserLocalPersistence2.type = "LOCAL";
 var browserLocalPersistence2 = BrowserLocalPersistence2;
-var POLLING_INTERVAL_MS2 = 1e3;
-function getDocumentCookie2(name5) {
+var POLLING_INTERVAL_MS = 1e3;
+function getDocumentCookie(name5) {
   const escapedName = name5.replace(/[\\^$.*+?()[\]{}|]/g, "\\$&");
   const matcher = RegExp(`${escapedName}=([^;]+)`);
   return document.cookie.match(matcher)?.[1] ?? null;
 }
-function getCookieName2(key) {
+function getCookieName(key) {
   const isDevMode2 = window.location.protocol === "http:";
   return `${isDevMode2 ? "__dev_" : "__HOST-"}FIREBASE_${key.split(":")[3]}`;
 }
-var CookiePersistence2 = class {
+var CookiePersistence = class {
   constructor() {
     this.type = "COOKIE";
     this.listenerUnsubscribes = /* @__PURE__ */ new Map();
@@ -12808,12 +12606,12 @@ var CookiePersistence2 = class {
     if (!this._isAvailable()) {
       return null;
     }
-    const name5 = getCookieName2(key);
+    const name5 = getCookieName(key);
     if (window.cookieStore) {
       const cookie = await window.cookieStore.get(name5);
       return cookie?.value;
     }
-    return getDocumentCookie2(name5);
+    return getDocumentCookie(name5);
   }
   // Log out by overriding the idToken with a sentinel value of ""
   async _remove(key) {
@@ -12824,7 +12622,7 @@ var CookiePersistence2 = class {
     if (!existingValue) {
       return;
     }
-    const name5 = getCookieName2(key);
+    const name5 = getCookieName(key);
     document.cookie = `${name5}=;Max-Age=34560000;Partitioned;Secure;SameSite=Strict;Path=/;Priority=High`;
     await fetch(`/__cookies__`, { method: "DELETE" }).catch(() => void 0);
   }
@@ -12833,7 +12631,7 @@ var CookiePersistence2 = class {
     if (!this._isAvailable()) {
       return;
     }
-    const name5 = getCookieName2(key);
+    const name5 = getCookieName(key);
     if (window.cookieStore) {
       const cb = ((event) => {
         const changedCookie = event.changed.find((change) => change.name === name5);
@@ -12849,14 +12647,14 @@ var CookiePersistence2 = class {
       this.listenerUnsubscribes.set(listener, unsubscribe2);
       return window.cookieStore.addEventListener("change", cb);
     }
-    let lastValue = getDocumentCookie2(name5);
+    let lastValue = getDocumentCookie(name5);
     const interval = setInterval(() => {
-      const currentValue = getDocumentCookie2(name5);
+      const currentValue = getDocumentCookie(name5);
       if (currentValue !== lastValue) {
         listener(currentValue);
         lastValue = currentValue;
       }
-    }, POLLING_INTERVAL_MS2);
+    }, POLLING_INTERVAL_MS);
     const unsubscribe = () => clearInterval(interval);
     this.listenerUnsubscribes.set(listener, unsubscribe);
   }
@@ -12869,8 +12667,8 @@ var CookiePersistence2 = class {
     this.listenerUnsubscribes.delete(listener);
   }
 };
-CookiePersistence2.type = "COOKIE";
-var browserCookiePersistence2 = CookiePersistence2;
+CookiePersistence.type = "COOKIE";
+var browserCookiePersistence = CookiePersistence;
 var BrowserSessionPersistence2 = class extends BrowserPersistenceClass2 {
   constructor() {
     super(
@@ -13774,7 +13572,7 @@ async function reauthenticateWithPhoneNumber2(user3, phoneNumber, appVerifier) {
 async function _verifyPhoneNumber2(auth, options, verifier) {
   if (!auth._getRecaptchaConfig()) {
     try {
-      await _initializeRecaptchaConfig2(auth);
+      await _initializeRecaptchaConfig(auth);
     } catch (error) {
       console.log("Failed to initialize reCAPTCHA Enterprise config. Triggering the reCAPTCHA v2 verification.");
     }
@@ -13813,7 +13611,7 @@ async function _verifyPhoneNumber2(auth, options, verifier) {
               "argument-error"
               /* AuthErrorCode.ARGUMENT_ERROR */
             );
-            const requestWithRecaptchaV2 = await injectRecaptchaV2Token2(authInstance, request, verifier);
+            const requestWithRecaptchaV2 = await injectRecaptchaV2Token(authInstance, request, verifier);
             return startEnrollPhoneMfa2(authInstance, requestWithRecaptchaV2);
           }
           return startEnrollPhoneMfa2(authInstance, request);
@@ -13860,7 +13658,7 @@ async function _verifyPhoneNumber2(auth, options, verifier) {
               "argument-error"
               /* AuthErrorCode.ARGUMENT_ERROR */
             );
-            const requestWithRecaptchaV2 = await injectRecaptchaV2Token2(authInstance, request, verifier);
+            const requestWithRecaptchaV2 = await injectRecaptchaV2Token(authInstance, request, verifier);
             return startSignInPhoneMfa2(authInstance, requestWithRecaptchaV2);
           }
           return startSignInPhoneMfa2(authInstance, request);
@@ -13892,7 +13690,7 @@ async function _verifyPhoneNumber2(auth, options, verifier) {
             "argument-error"
             /* AuthErrorCode.ARGUMENT_ERROR */
           );
-          const requestWithRecaptchaV2 = await injectRecaptchaV2Token2(authInstance, request, verifier);
+          const requestWithRecaptchaV2 = await injectRecaptchaV2Token(authInstance, request, verifier);
           return sendPhoneVerificationCode2(authInstance, requestWithRecaptchaV2);
         }
         return sendPhoneVerificationCode2(authInstance, request);
@@ -13921,7 +13719,7 @@ async function updatePhoneNumber2(user3, credential) {
   }
   await _link$12(userInternal, credential);
 }
-async function injectRecaptchaV2Token2(auth, request, recaptchaV2Verifier) {
+async function injectRecaptchaV2Token(auth, request, recaptchaV2Verifier) {
   _assert2(
     recaptchaV2Verifier.type === RECAPTCHA_VERIFIER_TYPE2,
     auth,
@@ -15552,16 +15350,10 @@ var verifyPasswordResetCode3 = ɵzoneWrap(verifyPasswordResetCode2, true, 2);
 
 export {
   AppCheckInstances,
-  isCloudWorkstation2 as isCloudWorkstation,
-  getUA2 as getUA,
-  isSafari,
-  FirebaseError2 as FirebaseError,
-  getModularInstance2 as getModularInstance,
   Component2 as Component,
   LogLevel2 as LogLevel,
   Logger2 as Logger,
   _registerComponent2 as _registerComponent,
-  _isFirebaseServerApp2 as _isFirebaseServerApp,
   SDK_VERSION2 as SDK_VERSION,
   registerVersion2 as registerVersion,
   FactorId2 as FactorId,
@@ -15587,7 +15379,7 @@ export {
   TwitterAuthProvider2 as TwitterAuthProvider,
   multiFactor2 as multiFactor,
   browserLocalPersistence2 as browserLocalPersistence,
-  browserCookiePersistence2 as browserCookiePersistence,
+  browserCookiePersistence,
   browserSessionPersistence2 as browserSessionPersistence,
   indexedDBLocalPersistence2 as indexedDBLocalPersistence,
   RecaptchaVerifier2 as RecaptchaVerifier,
@@ -15658,4 +15450,4 @@ export {
   verifyBeforeUpdateEmail3 as verifyBeforeUpdateEmail,
   verifyPasswordResetCode3 as verifyPasswordResetCode
 };
-//# sourceMappingURL=chunk-GTVDQEIB.js.map
+//# sourceMappingURL=chunk-JSBTQE5R.js.map
