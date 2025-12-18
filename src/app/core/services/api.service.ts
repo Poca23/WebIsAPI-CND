@@ -1,5 +1,3 @@
-// src/app/core/services/api.service.ts
-
 import { Injectable, inject } from '@angular/core';
 import {
   Firestore,
@@ -23,6 +21,7 @@ export class ApiService {
 
   getApis(): Observable<Api[]> {
     const apisCollection = collection(this.firestore, 'apis');
+    // ✅ FIX : Cast explicite vers Api[]
     return collectionData(apisCollection, { idField: 'id' }) as Observable<Api[]>;
   }
 

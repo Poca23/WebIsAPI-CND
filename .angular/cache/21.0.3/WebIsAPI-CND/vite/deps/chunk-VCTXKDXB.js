@@ -1,6 +1,6 @@
 import {
   PlatformLocation
-} from "./chunk-YCO32A2V.js";
+} from "./chunk-KMCEROUL.js";
 import {
   ApplicationRef,
   Attribute,
@@ -63,7 +63,7 @@ import {
   ɵɵinject,
   ɵɵinjectAttribute,
   ɵɵstyleProp
-} from "./chunk-MKSJXIGO.js";
+} from "./chunk-6JGDGI5N.js";
 
 // node_modules/@angular/common/fesm2022/_location-chunk.mjs
 function joinWithSlash(start, end) {
@@ -3213,7 +3213,7 @@ function isPlatformBrowser(platformId) {
 function isPlatformServer(platformId) {
   return platformId === PLATFORM_SERVER_ID;
 }
-var VERSION = new Version("21.0.5");
+var VERSION = new Version("21.0.6");
 var ViewportScroller = class _ViewportScroller {
   static ɵprov = ɵɵdefineInjectable({
     token: _ViewportScroller,
@@ -4492,4 +4492,4 @@ export {
   PRECONNECT_CHECK_BLOCKLIST,
   NgOptimizedImage
 };
-//# sourceMappingURL=chunk-UX7QT7KC.js.map
+//# sourceMappingURL=chunk-VCTXKDXB.js.map

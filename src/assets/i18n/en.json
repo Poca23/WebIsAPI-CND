@@ -8,5 +8,25 @@
     "loading": "Loading...",
     "error": "Error",
     "success": "Success"
+  },
+  "apiList": {
+    "title": "API Library",
+    "subtitle": "Explore our collection of APIs with guides and tutorials",
+    "filters": {
+      "all": "All",
+      "favorites": "Favorites",
+      "reset": "Reset"
+    },
+    "sort": {
+      "label": "Sort by",
+      "date": "Most recent",
+      "nameAsc": "Name (A → Z)",
+      "nameDesc": "Name (Z → A)"
+    },
+    "noResults": "No APIs match your criteria"
+  },
+  "apiCard": {
+    "views": "views",
+    "viewDetails": "View details"
   }
 }

@@ -1,7 +1,7 @@
 import {
   Title
-} from "./chunk-BXN35WBK.js";
-import "./chunk-URD4GAIK.js";
+} from "./chunk-JKARALQY.js";
+import "./chunk-LIUC5USF.js";
 import {
   HashLocationStrategy,
   Location,
@@ -10,10 +10,10 @@ import {
   PathLocationStrategy,
   PlatformNavigation,
   ViewportScroller
-} from "./chunk-UX7QT7KC.js";
+} from "./chunk-VCTXKDXB.js";
 import {
   LOCATION_INITIALIZED
-} from "./chunk-YCO32A2V.js";
+} from "./chunk-KMCEROUL.js";
 import {
   APP_BOOTSTRAP_LISTENER,
   ApplicationRef,
@@ -119,7 +119,7 @@ import {
   ɵɵloadQuery,
   ɵɵqueryRefresh,
   ɵɵsanitizeUrlOrResourceUrl
-} from "./chunk-MKSJXIGO.js";
+} from "./chunk-6JGDGI5N.js";
 
 // node_modules/@angular/router/fesm2022/_router-chunk.mjs
 var PRIMARY_OUTLET = "primary";
@@ -2047,7 +2047,7 @@ var ɵEmptyOutletComponent = class _ɵEmptyOutletComponent {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ɵEmptyOutletComponent, [{
     type: Component,
     args: [{
-      template: `<router-outlet/>`,
+      template: `<router-outlet />`,
       imports: [RouterOutlet],
       exportAs: "emptyRouterOutlet"
     }]
@@ -5865,7 +5865,7 @@ function mapToCanDeactivate(providers) {
 function mapToResolve(provider) {
   return (...params) => inject(provider).resolve(...params);
 }
-var VERSION = new Version("21.0.5");
+var VERSION = new Version("21.0.6");
 export {
   ActivatedRoute,
   ActivatedRouteSnapshot,

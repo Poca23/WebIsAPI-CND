@@ -1,0 +1,106 @@
+<!-- Who: Utilisateurs publics
+     What: Template de la liste des APIs avec filtres
+     When: Rendu du composant ApiListComponent
+     Where: Route /apis
+     Why: Interface de consultation des APIs
+     Which: Liste filtrée + contrôles de filtrage
+     How: Binding de données + directives Angular -->
+
+<div class="container mx-auto px-4 py-8">
+    <!-- Header avec titre -->
+    <header class="mb-8">
+        <h1 class="text-4xl font-bold text-light-text dark:text-dark-text mb-2">
+            {{ 'apiList.title' | transloco }}
+        </h1>
+        <p class="text-light-text/70 dark:text-dark-text/70">
+            {{ 'apiList.subtitle' | transloco }}
+        </p>
+    </header>
+
+    <!-- Filtres et contrôles -->
+    <section class="bg-light-surface dark:bg-dark-surface rounded-lg p-6 mb-8 shadow-md">
+        <div class="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+
+            <!-- Filtres catégories -->
+            <div class="flex flex-wrap gap-2">
+                <button (click)="selectCategory('all')" [class.bg-light-primary]="selectedCategory() === 'all'"
+                    [class.text-white]="selectedCategory() === 'all'"
+                    class="px-4 py-2 rounded-lg border border-light-primary hover:bg-light-primary hover:text-white transition-colors">
+                    {{ 'apiList.filters.all' | transloco }}
+                </button>
+
+                @for (category of categories(); track category) {
+                <button (click)="selectCategory(category)" [class.bg-light-primary]="selectedCategory() === category"
+                    [class.text-white]="selectedCategory() === category"
+                    class="px-4 py-2 rounded-lg border border-light-primary hover:bg-light-primary hover:text-white transition-colors">
+                    {{ category }}
+                </button>
+                }
+            </div>
+            <!-- Contrôles (favoris + tri + reset) -->
+            <div class="flex gap-3 items-center flex-wrap">
+                <!-- Favoris -->
+                <button (click)="toggleFavorites()" [class.bg-yellow-500]="showFavoritesOnly()"
+                    [class.text-white]="showFavoritesOnly()" [class.border-yellow-500]="!showFavoritesOnly()"
+                    class="px-4 py-2 rounded-lg border-2 hover:bg-yellow-500 hover:text-white transition-colors flex items-center gap-2 font-medium">
+                    <span>⭐</span>
+                    <span>{{ 'apiList.filters.favorites' | transloco }}</span>
+                </button>
+
+                <!-- Tri avec label -->
+                <div class="flex items-center gap-2">
+                    <label for="sort-select" class="text-sm font-semibold text-light-text dark:text-dark-text">
+                        {{ 'apiList.sort.label' | transloco }}
+                    </label>
+                    <select id="sort-select" [value]="sortBy()" (change)="changeSortBy($any($event.target).value)"
+                        class="px-4 py-2 rounded-lg border-2 border-light-primary bg-white dark:bg-dark-bg text-light-text dark:text-dark-text font-medium focus:outline-none focus:ring-2 focus:ring-light-primary">
+                        <option value="date">{{ 'apiList.sort.date' | transloco }}</option>
+                        <option value="name-asc">{{ 'apiList.sort.nameAsc' | transloco }}</option>
+                        <option value="name-desc">{{ 'apiList.sort.nameDesc' | transloco }}</option>
+                    </select>
+                </div>
+
+                <!-- Reset -->
+                <button (click)="resetFilters()"
+                    class="px-4 py-2 rounded-lg border-2 border-red-500 text-red-600 dark:text-red-400 font-medium hover:bg-red-500 hover:text-white transition-colors">
+                    {{ 'apiList.filters.reset' | transloco }}
+                </button>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- États de chargement et erreur -->
+    @if (loading()) {
+    <div class="text-center py-12">
+        <div
+            class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-light-primary border-t-transparent">
+        </div>
+        <p class="mt-4 text-light-text dark:text-dark-text">{{ 'common.loading' | transloco }}</p>
+    </div>
+    }
+
+    @if (error()) {
+    <div
+        class="bg-red-100 dark:bg-red-900/30 border border-red-400 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg">
+        {{ error() }}
+    </div>
+    }
+
+    <!-- Grille des APIs -->
+    @if (!loading() && !error()) {
+    @if (filteredApis().length > 0) {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @for (api of filteredApis(); track api.id) {
+        <app-api-card [api]="api" />
+        }
+    </div>
+    } @else {
+    <div class="text-center py-12">
+        <p class="text-xl text-light-text/60 dark:text-dark-text/60">
+            {{ 'apiList.noResults' | transloco }}
+        </p>
+    </div>
+    }
+    }
+</div>

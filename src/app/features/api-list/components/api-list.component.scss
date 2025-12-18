@@ -1,0 +1,37 @@
+/* Who: Designer UI/UX
+   What: Styles spécifiques au composant ApiList
+   When: Rendu du composant
+   Where: Scope du composant uniquement
+   Why: Animations et styles custom
+   Which: Transitions, hover effects
+   How: SCSS scoped + Tailwind */
+
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+// Animation d'apparition des cartes
+.grid > * {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Effet hover sur les boutons de filtres
+button {
+  transition: all 0.2s ease;
+
+  &:active {
+    transform: scale(0.95);
+  }
+}

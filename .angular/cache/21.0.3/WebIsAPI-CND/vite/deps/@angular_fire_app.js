@@ -13,7 +13,6 @@ import {
   _getProvider,
   _isFirebaseApp,
   _isFirebaseServerApp,
-  _isFirebaseServerAppSettings,
   _registerComponent,
   _removeServiceInstance,
   _serverApps,
@@ -27,8 +26,8 @@ import {
   provideFirebaseApp,
   registerVersion2 as registerVersion,
   setLogLevel
-} from "./chunk-L667CC4T.js";
-import "./chunk-MKSJXIGO.js";
+} from "./chunk-EYOALBAS.js";
+import "./chunk-6JGDGI5N.js";
 export {
   FirebaseApp,
   FirebaseAppModule,
@@ -44,7 +43,6 @@ export {
   _getProvider,
   _isFirebaseApp,
   _isFirebaseServerApp,
-  _isFirebaseServerAppSettings,
   _registerComponent,
   _removeServiceInstance,
   _serverApps,

@@ -3214,23 +3214,6 @@ function take(count2) {
   });
 }
 
-// node_modules/rxjs/dist/esm5/internal/operators/distinct.js
-function distinct(keySelector, flushes) {
-  return operate(function(source, subscriber) {
-    var distinctKeys = /* @__PURE__ */ new Set();
-    source.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      var key = keySelector ? keySelector(value) : value;
-      if (!distinctKeys.has(key)) {
-        distinctKeys.add(key);
-        subscriber.next(value);
-      }
-    }));
-    flushes && innerFrom(flushes).subscribe(createOperatorSubscriber(subscriber, function() {
-      return distinctKeys.clear();
-    }, noop));
-  });
-}
-
 // node_modules/rxjs/dist/esm5/internal/operators/distinctUntilChanged.js
 function distinctUntilChanged(comparator, keySelector) {
   if (keySelector === void 0) {
@@ -3831,7 +3814,7 @@ var Version = class {
     this.patch = parts.slice(2).join(".");
   }
 };
-var VERSION = new Version("21.0.5");
+var VERSION = new Version("21.0.6");
 var ERROR_DETAILS_PAGE_BASE_URL = (() => {
   const versionSubDomain = VERSION.major !== "0" ? `v${VERSION.major}.` : "";
   return `https://${versionSubDomain}angular.dev/errors`;
@@ -4263,6 +4246,7 @@ var NG_ENV_ID = getClosureSafeProperty({
   __NG_ENV_ID__: getClosureSafeProperty
 });
 function getNgModuleDef(type) {
+  assertTypeDefined(type, "@NgModule");
   return type[NG_MOD_DEF] || null;
 }
 function getNgModuleDefOrThrow(type) {
@@ -4273,6 +4257,7 @@ function getNgModuleDefOrThrow(type) {
   return ngModuleDef;
 }
 function getComponentDef(type) {
+  assertTypeDefined(type, "@Component");
   return type[NG_COMP_DEF] || null;
 }
 function getDirectiveDefOrThrow(type) {
@@ -4283,10 +4268,17 @@ function getDirectiveDefOrThrow(type) {
   return def;
 }
 function getDirectiveDef(type) {
+  assertTypeDefined(type, "@Directive");
   return type[NG_DIR_DEF] || null;
 }
 function getPipeDef(type) {
+  assertTypeDefined(type, "@Pipe");
   return type[NG_PIPE_DEF] || null;
+}
+function assertTypeDefined(type, symbolType) {
+  if (type == null) {
+    throw new RuntimeError(-919, (typeof ngDevMode === "undefined" || ngDevMode) && `Cannot read ${symbolType} metadata. This can indicate a runtime circular dependency in your app that needs to be resolved.`);
+  }
 }
 function isStandalone(type) {
   const def = getComponentDef(type) || getDirectiveDef(type) || getPipeDef(type);
@@ -4412,7 +4404,7 @@ function injectRootLimpMode(token, notFoundValue, flags) {
   }
   if (flags & 8) return null;
   if (notFoundValue !== void 0) return notFoundValue;
-  throwProviderNotFoundError(token, "Injector");
+  throwProviderNotFoundError(token, typeof ngDevMode !== "undefined" && ngDevMode ? "Injector" : "");
 }
 function assertInjectImplementationNotEqual(fn) {
   ngDevMode && assertNotEqual(_injectImplementation, fn, "Calling ɵɵinject would cause infinite recursion");
@@ -14915,7 +14907,7 @@ var ComponentFactory2 = class extends ComponentFactory$1 {
   }
 };
 function createRootTView(rootSelectorOrNode, componentDef, componentBindings, directives) {
-  const tAttributes = rootSelectorOrNode ? ["ng-version", "21.0.5"] : extractAttrsAndClassesFromSelector(componentDef.selectors[0]);
+  const tAttributes = rootSelectorOrNode ? ["ng-version", "21.0.6"] : extractAttrsAndClassesFromSelector(componentDef.selectors[0]);
   let creationBindings = null;
   let updateBindings = null;
   let varsToAllocate = 0;
@@ -15895,7 +15887,7 @@ var StandaloneService = class _StandaloneService {
     }
     if (!this.cachedInjectors.has(componentDef)) {
       const providers = internalImportProvidersFrom(false, componentDef.type);
-      const standaloneInjector = providers.length > 0 ? createEnvironmentInjector([providers], this._injector, `Standalone[${componentDef.type.name}]`) : null;
+      const standaloneInjector = providers.length > 0 ? createEnvironmentInjector([providers], this._injector, typeof ngDevMode !== "undefined" && ngDevMode ? `Standalone[${componentDef.type.name}]` : "") : null;
       this.cachedInjectors.set(componentDef, standaloneInjector);
     }
     return this.cachedInjectors.get(componentDef);
@@ -29093,17 +29085,22 @@ export {
   __spreadProps,
   __objRest,
   SIGNAL,
+  __extends,
   __rest,
+  __awaiter,
+  __generator,
+  __values,
+  __read,
+  __spreadArray,
+  __await,
+  __asyncGenerator,
+  __asyncValues,
   Subscription,
   pipe,
   Observable,
   Subject,
   BehaviorSubject,
-  asyncScheduler,
-  queueScheduler,
   EMPTY,
-  observeOn,
-  subscribeOn,
   from,
   of,
   throwError,
@@ -29116,13 +29113,11 @@ export {
   concat,
   defer,
   forkJoin,
-  timer,
   filter,
   catchError,
   concatMap,
   defaultIfEmpty,
   take,
-  distinct,
   distinctUntilChanged,
   finalize,
   first,
@@ -29635,4 +29630,4 @@ export {
   RESPONSE_INIT,
   REQUEST_CONTEXT
 };
-//# sourceMappingURL=chunk-MKSJXIGO.js.map
+//# sourceMappingURL=chunk-6JGDGI5N.js.map

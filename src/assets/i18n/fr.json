@@ -8,5 +8,25 @@
     "loading": "Chargement...",
     "error": "Erreur",
     "success": "Succès"
+  },
+  "apiList": {
+    "title": "Bibliothèque d'APIs",
+    "subtitle": "Explorez notre collection d'APIs avec guides et tutoriels",
+    "filters": {
+      "all": "Toutes",
+      "favorites": "Favoris",
+      "reset": "Réinitialiser"
+    },
+    "sort": {
+      "label": "Trier par",
+      "date": "Plus récentes",
+      "nameAsc": "Nom (A → Z)",
+      "nameDesc": "Nom (Z → A)"
+    },
+    "noResults": "Aucune API ne correspond à vos critères"
+  },
+  "apiCard": {
+    "views": "vues",
+    "viewDetails": "Voir les détails"
   }
 }
